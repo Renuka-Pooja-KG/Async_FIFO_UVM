@@ -1,8 +1,9 @@
 interface rd_interface (
-  input logic rclk,
-  input logic hw_rst_n
+  //input logic hw_rst_n,
+  input logic rclk
 );
   // Read side signals
+  logic hw_rst_n;
   logic [31:0] read_data;
   logic read_enable;
   logic [4:0] aempty_value;
@@ -17,7 +18,7 @@ interface rd_interface (
   // Read domain clocking block (for driver)
   clocking read_driver_cb @(posedge rclk);
     default input #1step output #1step;
-    // output hw_rst_n;
+    output hw_rst_n;
     output read_enable, aempty_value, sw_rst;
     input read_data, rdempty, rd_almost_empty, underflow, fifo_read_count, rd_level;
   endclocking
@@ -26,6 +27,7 @@ interface rd_interface (
   clocking read_monitor_cb @(posedge rclk);
     default input #1step output #1step;
     // input rclk, hw_rst_n;
+    input hw_rst_n;
     input read_enable, aempty_value, sw_rst;
     input read_data, rdempty, rd_almost_empty, underflow, fifo_read_count, rd_level;
   endclocking

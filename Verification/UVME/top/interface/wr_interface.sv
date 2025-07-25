@@ -1,9 +1,11 @@
 interface wr_interface (
-  input logic wclk,
-  input logic hw_rst_n,
-  input logic mem_rst
+  //input logic hw_rst_n,
+  //input logic mem_rst,
+    input logic wclk
 );
   // Write side signals
+  logic hw_rst_n;
+  logic mem_rst;
   logic [31:0] wdata;
   logic write_enable;
   logic [4:0] afull_value;
@@ -18,7 +20,7 @@ interface wr_interface (
   // Write domain clocking block (for driver)
   clocking write_driver_cb @(posedge wclk);
     default input #1step output #1step;
-    // output hw_rst_n;
+    output hw_rst_n, mem_rst;
     output wdata, write_enable, afull_value, sw_rst;
     input wfull, wr_almost_ful, overflow, fifo_write_count, wr_level;
   endclocking
@@ -27,6 +29,7 @@ interface wr_interface (
   clocking write_monitor_cb @(posedge wclk);
     default input #1step output #1step;
     // input hw_rst_n;
+    input hw_rst_n, mem_rst;
     input wdata, write_enable, afull_value, sw_rst;
     input wfull, wr_almost_ful, overflow, fifo_write_count, wr_level;
   endclocking

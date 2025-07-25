@@ -10,6 +10,24 @@ class write_until_wfull_seq extends write_base_sequence;
     bit fifo_full = 0;
     int overflow_attempts = 3;
     `uvm_info(get_type_name(), "Starting write_until_wfull_seq", UVM_LOW)
+    // --- Reset testing before normal operation ---
+    // Assert both resets (hw_rst_n=0, mem_rst=1)
+    req = write_sequence_item::type_id::create("req");
+    req.hw_rst_n = 0;
+    req.mem_rst = 1;
+    req.write_enable = 0;
+    start_item(req);
+    finish_item(req);
+    `uvm_info(get_type_name(), "Asserting resets: hw_rst_n=0, mem_rst=1", UVM_LOW)
+    // Deassert both resets (hw_rst_n=1, mem_rst=0)
+    req = write_sequence_item::type_id::create("req");
+    req.hw_rst_n = 1;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    start_item(req);
+    finish_item(req);
+    `uvm_info(get_type_name(), "Deasserting resets: hw_rst_n=1, mem_rst=0", UVM_LOW)
+    // --- End reset testing ---
     // Write until FIFO is full
     do begin
       req = write_sequence_item::type_id::create("req");

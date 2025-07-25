@@ -26,6 +26,7 @@ class read_driver extends uvm_driver #(read_sequence_item);
       rd_vif.read_driver_cb.read_enable <= tr.read_enable;
       rd_vif.read_driver_cb.aempty_value <= tr.aempty_value;
       rd_vif.read_driver_cb.sw_rst <= tr.sw_rst;
+      rd_vif.read_driver_cb.hw_rst_n <= tr.hw_rst_n;
       @(rd_vif.read_driver_cb);
       // Sample the read_data here
       tr.read_data = rd_vif.read_driver_cb.read_data;

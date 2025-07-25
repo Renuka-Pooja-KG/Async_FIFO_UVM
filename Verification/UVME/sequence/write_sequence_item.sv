@@ -4,7 +4,8 @@ class write_sequence_item extends uvm_sequence_item;
   rand bit write_enable;
   rand bit [4:0] afull_value;
   rand bit sw_rst;
-  //  rand bit mem_rst;
+  rand bit mem_rst;
+  rand bit hw_rst_n;
   bit wfull;
   bit wr_almost_ful;
   bit [5:0] fifo_write_count;
@@ -20,7 +21,8 @@ class write_sequence_item extends uvm_sequence_item;
     `uvm_field_int(write_enable, UVM_ALL_ON)
     `uvm_field_int(afull_value, UVM_ALL_ON)
     `uvm_field_int(sw_rst, UVM_ALL_ON)
-    // `uvm_field_int(mem_rst, UVM_ALL_ON)
+    `uvm_field_int(mem_rst, UVM_ALL_ON)
+    `uvm_field_int(hw_rst_n, UVM_ALL_ON)
     `uvm_field_int(wfull, UVM_ALL_ON)
     `uvm_field_int(wr_almost_ful, UVM_ALL_ON)
     `uvm_field_int(fifo_write_count, UVM_ALL_ON)
@@ -42,7 +44,8 @@ class write_sequence_item extends uvm_sequence_item;
     write_enable = rhs_.write_enable;
     afull_value = rhs_.afull_value;
     sw_rst = rhs_.sw_rst;
-    // mem_rst = rhs_.mem_rst;
+    mem_rst = rhs_.mem_rst;
+    hw_rst_n = rhs_.hw_rst_n;
     wfull = rhs_.wfull;
     wr_almost_ful = rhs_.wr_almost_ful;
     fifo_write_count = rhs_.fifo_write_count;
@@ -51,7 +54,7 @@ class write_sequence_item extends uvm_sequence_item;
   endfunction
 
   function string convert2string();
-    return $sformatf("wdata=%0d write_enable=%0b afull_value=%0d sw_rst=%0b wfull=%0b wr_almost_ful=%0b fifo_write_count=%0d wr_level=%0d overflow=%0b",
-      wdata, write_enable, afull_value, sw_rst, wfull, wr_almost_ful, fifo_write_count, wr_level, overflow);
+    return $sformatf("wdata=%0d write_enable=%0b afull_value=%0d sw_rst=%0b mem_rst=%0b hw_rst_n=%0b wfull=%0b wr_almost_ful=%0b fifo_write_count=%0d wr_level=%0d overflow=%0b",
+      wdata, write_enable, afull_value, sw_rst, mem_rst, hw_rst_n, wfull, wr_almost_ful, fifo_write_count, wr_level, overflow);
   endfunction
 endclass 
