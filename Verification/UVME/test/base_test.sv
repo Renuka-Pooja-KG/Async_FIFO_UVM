@@ -25,8 +25,8 @@ class base_test extends uvm_test;
     phase.raise_objection(this);
     
     // Sequence starting should be done in derived tests
-    //  wseq.start(m_env.m_write_agent.m_sequencer);
-    //  rseq.start(m_env.m_read_agent.m_sequencer);
+     wseq.start(m_env.m_write_agent.m_sequencer);
+     rseq.start(m_env.m_read_agent.m_sequencer);
     phase.drop_objection(this);
   endtask
 endclass 

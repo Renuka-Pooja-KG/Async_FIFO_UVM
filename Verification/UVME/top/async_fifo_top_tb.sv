@@ -108,7 +108,7 @@ module async_fifo_top_tb;
 
     // Start UVM
     run_test("base_test");
-    //#1000000 $finish;
+    #10000 $finish;
   end
 
   task pulse_hw_rst_n();
