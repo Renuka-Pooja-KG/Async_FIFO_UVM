@@ -19,6 +19,9 @@ import uvm_pkg::*;
 `include "./../UVME/write_agent/write_monitor.sv"
 `include "./../UVME/read_agent/read_monitor.sv"
 
+`include "./../UVME/write_agent/write_agent.sv"
+`include "./../UVME/read_agent/read_agent.sv"
+
 `include "./../UVME/env/scoreboard.sv"
 `include "./../UVME/env/write_coverage.sv"
 `include "./../UVME/env/read_coverage.sv"
