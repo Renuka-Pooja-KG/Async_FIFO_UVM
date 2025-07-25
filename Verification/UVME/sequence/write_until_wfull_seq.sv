@@ -14,7 +14,8 @@ class write_until_wfull_seq extends write_base_sequence;
     do begin
       req = write_sequence_item::type_id::create("req");
       start_item(req);
-      req.write_enable = 1;
+      uvm_do_with(req, { write_enable == 1; });
+      `uvm_info(get_type_name(), $sformatf("req.wdata = 0x%0d", req.wdata), UVM_LOW)
       finish_item(req);
       // Wait for the response (assuming req.wfull is updated by the driver/monitor)
       if (req.wfull === 1) begin
