@@ -29,6 +29,7 @@ class scoreboard extends uvm_scoreboard;
   bit last_rdempty;
   bit last_write_enable;
   bit last_wfull;
+  int last_wr_level;
 
   function new(string name = "scoreboard", uvm_component parent = null);
     super.new(name, parent);
@@ -73,6 +74,7 @@ class scoreboard extends uvm_scoreboard;
       // Update last_write_enable and last_wfull
       last_write_enable = tr.write_enable;
       last_wfull = tr.wfull;
+      last_wr_level = tr.wr_level;
       // Simultaneous write and read: do not update levels or queue
       if (tr.write_enable && last_read_enable && !tr.wfull && !last_rdempty) begin
         `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (write)", UVM_MEDIUM)
@@ -134,6 +136,7 @@ class scoreboard extends uvm_scoreboard;
       // Update last_read_enable and last_rdempty
       last_read_enable = tr.read_enable;
       last_rdempty = tr.rdempty;
+      
       // Simultaneous write and read: do not update levels or queue
       if (last_write_enable && tr.read_enable && !last_wfull && !tr.rdempty) begin
         `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (read)", UVM_MEDIUM)
@@ -191,6 +194,7 @@ class scoreboard extends uvm_scoreboard;
         end
         // Check FIFO read level
         if (tr.rd_level != expected_rd_level) begin
+          `uvm_info(get_type_name(), $sformatf("FIFO read level mismatch. Write level values: expected=%0d, actual=%0d", expected_wr_level, last_wr_level), UVM_HIGH)
           `uvm_error(get_type_name(), $sformatf("FIFO read level mismatch: expected=%0d, actual=%0d", expected_rd_level, tr.rd_level))
           error_count++;
         end
