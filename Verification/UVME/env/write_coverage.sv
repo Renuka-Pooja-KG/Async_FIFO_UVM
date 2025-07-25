@@ -3,7 +3,7 @@ class write_coverage extends uvm_subscriber #(write_sequence_item);
   `uvm_component_utils(write_coverage)
   write_sequence_item cov_item;
   int count = 0;
-  uvm_analysis_imp #(write_sequence_item, write_coverage) analysis_imp;
+  uvm_analysis_imp #(write_sequence_item, write_coverage) wr_analysis_imp;
 
   covergroup write_cg ();
     option.per_instance = 1;
@@ -62,7 +62,7 @@ class write_coverage extends uvm_subscriber #(write_sequence_item);
   function new(string name = "write_coverage", uvm_component parent = null);
     super.new(name, parent);
     write_cg = new();
-    analysis_imp = new("analysis_imp", this);
+    wr_analysis_imp = new("wr_analysis_imp", this);
   endfunction
 
   function void write(write_sequence_item t);

@@ -5,11 +5,11 @@ class write_agent extends uvm_agent;
   write_monitor   m_monitor;
   write_sequencer m_sequencer;
 
-  uvm_analysis_port #(write_sequence_item) analysis_port;
+  uvm_analysis_port #(write_sequence_item) wr_agent_analysis_port;
 
   function new(string name = "write_agent", uvm_component parent = null);
     super.new(name, parent);
-    analysis_port = new("analysis_port", this);
+    wr_agent_analysis_port = new("wr_agent_analysis_port", this);
   endfunction
 
   function void build_phase(uvm_phase phase);
@@ -23,7 +23,7 @@ class write_agent extends uvm_agent;
 
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
-    m_monitor.write_analysis_port.connect(analysis_port);
+    m_monitor.write_analysis_port.connect(wr_agent_analysis_port);
     if (is_active == UVM_ACTIVE) begin
       m_driver.seq_item_port.connect(m_sequencer.seq_item_export);
     end

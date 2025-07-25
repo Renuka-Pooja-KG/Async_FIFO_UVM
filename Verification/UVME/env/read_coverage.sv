@@ -58,12 +58,12 @@ class read_coverage extends uvm_subscriber #(read_sequence_item);
   endgroup: read_cg
  
   int count = 0;
-  uvm_analysis_imp #(read_sequence_item, read_coverage) analysis_imp;
+  uvm_analysis_imp #(read_sequence_item, read_coverage) rd_analysis_imp;
   
   function new(string name = "read_coverage", uvm_component parent = null);
     super.new(name, parent);
     read_cg = new();
-    analysis_imp = new("analysis_imp", this);
+    rd_analysis_imp = new("rd_analysis_imp", this);
   endfunction
 
   function void write(read_sequence_item t);

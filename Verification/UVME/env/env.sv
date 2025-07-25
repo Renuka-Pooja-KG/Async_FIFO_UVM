@@ -22,9 +22,9 @@ class env extends uvm_env;
 
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
-    m_write_agent.analysis_port.connect(m_write_coverage.analysis_export);
-    m_read_agent.analysis_port.connect(m_read_coverage.analysis_export);
-    m_write_agent.analysis_port.connect(m_scoreboard.write_export);
-    m_read_agent.analysis_port.connect(m_scoreboard.read_export);
+    m_write_agent.wr_agent_analysis_port.connect(m_write_coverage.wr_analysis_imp);
+    m_read_agent.rd_agent_analysis_port.connect(m_read_coverage.rd_analysis_imp);
+    m_write_agent.wr_agent_analysis_port.connect(m_scoreboard.write_export);
+    m_read_agent.rd_agent_analysis_port.connect(m_scoreboard.read_export);
   endfunction
 endclass 
