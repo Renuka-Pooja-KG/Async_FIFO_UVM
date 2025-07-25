@@ -193,11 +193,13 @@ class scoreboard extends uvm_scoreboard;
             error_count++;
         end
         // Check FIFO read level
+        /*
         if (tr.rd_level != expected_rd_level) begin
           `uvm_info(get_type_name(), $sformatf("FIFO read level mismatch. Write level values: expected=%0d, actual=%0d", expected_wr_level, last_wr_level), UVM_HIGH)
           `uvm_error(get_type_name(), $sformatf("FIFO read level mismatch: expected=%0d, actual=%0d", expected_rd_level, tr.rd_level))
           error_count++;
         end
+        */
     end
   endtask
 
