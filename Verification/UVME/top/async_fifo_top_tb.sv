@@ -1,47 +1,10 @@
-// `timescale 1ns/1ps
-
-// import uvm_pkg::*;
-// `include "uvm_macros.svh"
-// //`include "define.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/wr_interface.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/rd_interface.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/write_sequence_item.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/read_sequence_item.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/write_driver.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/read_driver.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/write_sequencer.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/read_sequencer.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/write_monitor.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/read_monitor.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/write_agent.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/read_agent.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/scoreboard.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/write_coverage.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/read_coverage.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/env.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/default_write_sequence.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/default_read_sequence.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/write_until_full_seq.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/read_until_empty_seq.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/main_write_seq.sv"
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/main_read_seq.sv"
-
-// `include "/home/sgeuser100/renuka_dv/Async_FIFO_V_2/Simple_UVM/base_test.sv"
-
-
 module async_fifo_top_tb;
 
   import uvm_pkg::*;
   import verification_pkg::*;
+
+  `include "uvm_macros.svh"
+
   // Clock and reset signals
   logic wclk;
   logic rclk;
