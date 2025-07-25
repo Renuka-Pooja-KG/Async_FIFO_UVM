@@ -18,15 +18,22 @@ module async_fifo_top_tb;
   always #7 rclk = ~rclk; // ~71.4MHz if RCLK_SPEED=14
 
   // Interface instantiations
-  wr_interface wr_if (
-    .wclk(wclk),
-    .hw_rst_n(hw_rst_n),
-    .mem_rst(mem_rst)
+  // wr_interface wr_if (
+  //   .wclk(wclk),
+  //   .hw_rst_n(hw_rst_n),
+  //   .mem_rst(mem_rst)
+  // );
+
+  // rd_interface rd_if (
+  //   .rclk(rclk),
+  //   .hw_rst_n(hw_rst_n)
+  // );
+   wr_interface wr_if (
+    .wclk(wclk)
   );
 
   rd_interface rd_if (
-    .rclk(rclk),
-    .hw_rst_n(hw_rst_n)
+    .rclk(rclk)
   );
 
   // DUT instantiation
@@ -45,7 +52,7 @@ module async_fifo_top_tb;
   ) dut (
     // Write side
     .wclk(wclk),
-    .hw_rst_n(hw_rst_n),
+    .hw_rst_n(wr_if.hw_rst_n),
     .wdata(wr_if.wdata),
     .write_enable(wr_if.write_enable),
     .afull_value(wr_if.afull_value),
@@ -79,18 +86,6 @@ module async_fifo_top_tb;
     $shm_open("wave.shm");
     $shm_probe("AS");
   end
-
-initial begin
-  hw_rst_n = 0;
-  mem_rst = 0;
-  #20;
-  hw_rst_n = 1;
-  mem_rst = 1;
-  #20;
-  mem_rst = 0;
-
-
-end
   // Start UVM
   initial begin
     // Start UVM
