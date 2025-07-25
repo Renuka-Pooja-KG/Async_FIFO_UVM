@@ -13,7 +13,7 @@ class read_until_rdempty_seq extends read_base_sequence;
     do begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
-      req.read_enable = 1;
+      `uvm_do_with(req, { req.read_enable == 1; });
       finish_item(req);
       // Optionally, check rdempty from the response or monitor (requires scoreboard/monitor feedback)
       // Here, we assume req.rdempty is updated by the driver/monitor after each read
