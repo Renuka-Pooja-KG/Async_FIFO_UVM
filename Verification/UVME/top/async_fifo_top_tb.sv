@@ -80,6 +80,17 @@ module async_fifo_top_tb;
     $shm_probe("AS");
   end
 
+initial begin
+  hw_rst_n = 0;
+  mem_rst = 0;
+  #20;
+  hw_rst_n = 1;
+  mem_rst = 1;
+  #20;
+  mem_rst = 0;
+
+
+end
   // Start UVM
   initial begin
     // Start UVM
