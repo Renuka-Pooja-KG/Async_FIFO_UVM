@@ -114,4 +114,4 @@ module async_fifo_top_tb;
     #10000 $finish;
   end
 
-endmodule 
+endmodule
