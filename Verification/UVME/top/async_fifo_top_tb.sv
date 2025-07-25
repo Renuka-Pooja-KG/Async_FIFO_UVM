@@ -17,18 +17,6 @@ module async_fifo_top_tb;
   initial rclk = 0;
   always #7 rclk = ~rclk; // ~71.4MHz if RCLK_SPEED=14
 
-  // Reset generation
-  initial begin
-    // Assert resets
-    hw_rst_n = 0; // Asserted (active low)
-    mem_rst  = 0; // Deasserted (active high)
-    #20;
-    hw_rst_n = 1; // Deasserted (inactive)
-    mem_rst  = 1; // Asserted (active high)
-    #20;
-    mem_rst  = 0; // Deasserted (inactive)
-  end
-
   // Interface instantiations
   wr_interface wr_if (
     .wclk(wclk),
@@ -94,24 +82,8 @@ module async_fifo_top_tb;
 
   // Start UVM
   initial begin
-    // Initial reset sequence as above...
-
-    // Optionally, pulse resets during simulation (simple, sequential)
-    #200;
-    $display("Pulsing hw_rst_n (active low) at time %0t", $time);
-    hw_rst_n = 0; // Assert
-    #20;
-    hw_rst_n = 1; // Deassert
-
-    #200;
-    $display("Pulsing mem_rst (active high) at time %0t", $time);
-    mem_rst = 1; // Assert
-    #20;
-    mem_rst = 0; // Deassert
-
     // Start UVM
     run_test("base_test");
-    #10000 $finish;
   end
 
 endmodule
