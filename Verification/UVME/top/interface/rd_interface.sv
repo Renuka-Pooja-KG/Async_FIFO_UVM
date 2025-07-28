@@ -39,7 +39,8 @@ interface rd_interface (
     // Synchronous reset signal
     //input sw_rst;
     // Read domain inputs (sampled on rclk)
-    input read_enable, aempty_value, sw_rst;
+    //input read_enable, aempty_value, sw_rst;
+    input read_enable, aempty_value;
     input read_data, rdempty, rd_almost_empty, underflow, fifo_read_count, rd_level;
   endclocking
 
