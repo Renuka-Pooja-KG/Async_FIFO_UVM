@@ -15,7 +15,7 @@ class scoreboard extends uvm_scoreboard;
 
   // FIFO state tracking
   int expected_wr_level = 0;
-  int expected_rd_level = = (1 << 5); // FIFO depth
+  int expected_rd_level = (1 << 5); // FIFO depth
   int expected_fifo_write_count = 0; // Added for checking fifo_write_count
   int expected_fifo_read_count = 0; // Added for checking fifo_read_count   
   bit expected_wfull = 0;
