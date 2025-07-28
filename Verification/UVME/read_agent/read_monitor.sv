@@ -20,12 +20,21 @@ class read_monitor extends uvm_monitor;
   task run_phase(uvm_phase phase);
     read_sequence_item tr;
     `uvm_info(get_type_name(), "read_monitor run_phase started", UVM_LOW)
+
     forever begin
       @(rd_vif.read_monitor_cb);
+
       tr = read_sequence_item::type_id::create("tr", this);
+
+      // Capture signals from the interface
+      // Asynchronous reset signals
+      tr.hw_rst_n       = rd_vif.hw_rst_n;
+      // Synchronous signals
+      tr.sw_rst         = rd_vif.read_monitor_cb.sw_rst;
+      
       tr.read_enable      = rd_vif.read_monitor_cb.read_enable;
       tr.aempty_value    = rd_vif.read_monitor_cb.aempty_value;
-      tr.sw_rst          = rd_vif.read_monitor_cb.sw_rst;
+  
       tr.rdempty         = rd_vif.read_monitor_cb.rdempty;
       tr.rd_almost_empty = rd_vif.read_monitor_cb.rd_almost_empty;
       tr.fifo_read_count = rd_vif.read_monitor_cb.fifo_read_count;

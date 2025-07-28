@@ -8,8 +8,8 @@ module async_fifo_top_tb;
   // Clock and reset signals
   logic wclk;
   logic rclk;
-  logic hw_rst_n;
-  logic mem_rst;
+  // logic hw_rst_n;
+  // logic mem_rst;
 
   // Clock generation
   initial wclk = 0;
@@ -17,17 +17,6 @@ module async_fifo_top_tb;
   initial rclk = 0;
   always #7 rclk = ~rclk; // ~71.4MHz if RCLK_SPEED=14
 
-  // Interface instantiations
-  // wr_interface wr_if (
-  //   .wclk(wclk),
-  //   .hw_rst_n(hw_rst_n),
-  //   .mem_rst(mem_rst)
-  // );
-
-  // rd_interface rd_if (
-  //   .rclk(rclk),
-  //   .hw_rst_n(hw_rst_n)
-  // );
    wr_interface wr_if (
     .wclk(wclk)
   );

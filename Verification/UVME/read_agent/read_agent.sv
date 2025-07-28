@@ -19,6 +19,7 @@ class read_agent extends uvm_agent;
       m_driver    = read_driver::type_id::create("m_driver", this);
       m_sequencer = read_sequencer::type_id::create("m_sequencer", this);
     end
+    `uvm_info(get_type_name(), "read_agent build_phase completed", UVM_LOW)
   endfunction
 
   function void connect_phase(uvm_phase phase);
@@ -27,5 +28,6 @@ class read_agent extends uvm_agent;
     if (is_active == UVM_ACTIVE) begin
       m_driver.seq_item_port.connect(m_sequencer.seq_item_export);
     end
+    `uvm_info(get_type_name(), "read_agent connect_phase completed", UVM_LOW)
   endfunction
 endclass 

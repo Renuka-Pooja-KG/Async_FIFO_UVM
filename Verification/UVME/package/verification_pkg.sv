@@ -30,12 +30,13 @@ import uvm_pkg::*;
 
 `include "./../UVME/sequence/write_base_sequence.sv"
 `include "./../UVME/sequence/read_base_sequence.sv"
-`include "./../UVME/sequence/write_until_wfull_seq.sv"
-`include "./../UVME/sequence/read_until_rdempty_seq.sv"
 
 `include "./../UVME/test/base_test.sv"
-`include "./../UVME/test/write_until_wfull_test.sv"
-`include "./../UVME/test/read_until_rdempty_test.sv"
+`include "./../UVME/test/write_only_test.sv"
+`include "./../UVME/test/read_only_test.sv"
+`include "./../UVME/test/random_test.sv"
+`include "./../UVME/test/reset_test.sv"
+`include "./../UVME/test/simultaneous_test.sv"
 
 
 endpackage

@@ -3,9 +3,9 @@ class write_sequence_item extends uvm_sequence_item;
   rand bit [31:0] wdata;
   rand bit write_enable;
   rand bit [4:0] afull_value;
-  rand bit sw_rst;
-  rand bit mem_rst;
-  rand bit hw_rst_n;
+  rand bit sw_rst; // Synchronous reset signal
+  rand bit mem_rst; // Asynchronous reset signal
+  rand bit hw_rst_n; // Asynchronous reset signal
   bit wfull;
   bit wr_almost_ful;
   bit [5:0] fifo_write_count;
@@ -55,6 +55,8 @@ class write_sequence_item extends uvm_sequence_item;
 
   function string convert2string();
     return $sformatf("wdata=%0d write_enable=%0b afull_value=%0d sw_rst=%0b mem_rst=%0b hw_rst_n=%0b wfull=%0b wr_almost_ful=%0b fifo_write_count=%0d wr_level=%0d overflow=%0b",
-      wdata, write_enable, afull_value, sw_rst, mem_rst, hw_rst_n, wfull, wr_almost_ful, fifo_write_count, wr_level, overflow);
+      wdata, write_enable, afull_value, 
+      sw_rst, mem_rst, hw_rst_n, 
+      wfull, wr_almost_ful, fifo_write_count, wr_level, overflow);
   endfunction
 endclass 

@@ -2,8 +2,8 @@ class read_sequence_item extends uvm_sequence_item;
 
   rand bit read_enable;
   rand bit [4:0] aempty_value;
-  rand bit sw_rst;
-  rand bit hw_rst_n;
+  rand bit sw_rst; // Synchronous reset signal
+  rand bit hw_rst_n; // Asynchronous reset signal
   bit rdempty;
   bit rd_almost_empty;
   bit [5:0] fifo_read_count;
@@ -48,6 +48,8 @@ class read_sequence_item extends uvm_sequence_item;
 
   function string convert2string();
     return $sformatf("read_enable=%0b aempty_value=%0d sw_rst=%0b hw_rst_n=%0b rdempty=%0b rd_almost_empty=%0b fifo_read_count=%0d underflow=%0b rd_level=%0d read_data=%0d",
-      read_enable, aempty_value, sw_rst, hw_rst_n, rdempty, rd_almost_empty, fifo_read_count, underflow, rd_level, read_data);
+      read_enable, aempty_value, 
+      sw_rst, hw_rst_n, 
+      rdempty, rd_almost_empty, fifo_read_count, underflow, rd_level, read_data);
   endfunction
 endclass 

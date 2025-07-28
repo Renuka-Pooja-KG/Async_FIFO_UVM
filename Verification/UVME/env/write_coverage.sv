@@ -2,8 +2,6 @@ class write_coverage extends uvm_subscriber #(write_sequence_item);
 
   `uvm_component_utils(write_coverage)
   write_sequence_item cov_item;
-  int count = 0;
-  uvm_analysis_imp #(write_sequence_item, write_coverage) wr_analysis_imp;
 
   covergroup write_cg ();
     option.per_instance = 1;
@@ -58,6 +56,10 @@ class write_coverage extends uvm_subscriber #(write_sequence_item);
       ignore_bins write_enable_zero_wdata = binsof(write_enable_cp.zero) && binsof(wdata_cp);
     }
   endgroup: write_cg
+
+  int count = 0;
+  uvm_analysis_imp #(write_sequence_item, write_coverage) wr_analysis_imp;
+
 
   function new(string name = "write_coverage", uvm_component parent = null);
     super.new(name, parent);

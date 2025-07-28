@@ -19,13 +19,18 @@ class write_agent extends uvm_agent;
       m_driver    = write_driver::type_id::create("m_driver", this);
       m_sequencer = write_sequencer::type_id::create("m_sequencer", this);
     end
+    `uvm_info(get_type_name(), "write_agent build_phase completed", UVM_LOW)
   endfunction
 
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
+    // Connect monitor analysis port to agent analysis port
     m_monitor.write_analysis_port.connect(wr_agent_analysis_port);
+
+    // Connect driver to sequencer
     if (is_active == UVM_ACTIVE) begin
       m_driver.seq_item_port.connect(m_sequencer.seq_item_export);
     end
+    `uvm_info(get_type_name(), "write_agent connect_phase completed", UVM_LOW)
   endfunction
 endclass 

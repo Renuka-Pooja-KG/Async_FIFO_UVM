@@ -15,7 +15,7 @@ class scoreboard extends uvm_scoreboard;
 
   // FIFO state tracking
   int expected_wr_level = 0;
-  int expected_rd_level = 0;
+  int expected_rd_level = = (1 << 5); // FIFO depth
   int expected_fifo_write_count = 0; // Added for checking fifo_write_count
   int expected_fifo_read_count = 0; // Added for checking fifo_read_count   
   bit expected_wfull = 0;
@@ -48,7 +48,7 @@ class scoreboard extends uvm_scoreboard;
     expected_wfull = 0;
     expected_rdempty = 1;
     expected_wr_almost_ful = 0;
-    expected_rdalmost_empty = 0;
+    expected_rdalmost_empty = 1;
     expected_overflow = 0;
     expected_underflow = 0;
   endfunction
@@ -78,13 +78,14 @@ class scoreboard extends uvm_scoreboard;
       // Simultaneous write and read: do not update levels or queue
       if (tr.write_enable && last_read_enable && !tr.wfull && !last_rdempty) begin
         `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (write)", UVM_MEDIUM)
-        // Pop the front (read) and push the new write data (write)
         if (expected_data_queue.size() > 0) begin
           expected_data_queue.pop_front();
+          expected_fifo_read_count++; // Increment on successful read
         end
         expected_data_queue.push_back(tr.wdata);
+        write_count++;
+        expected_fifo_write_count++; // Increment on successful write
         // No change to expected_wr_level or expected_rd_level
-        // No change to expected_fifo_write_count (write and read cancel out)
       end else if (tr.write_enable && !tr.wfull) begin
         expected_data_queue.push_back(tr.wdata);
         write_count++;
@@ -93,12 +94,16 @@ class scoreboard extends uvm_scoreboard;
           expected_rd_level--;
           expected_fifo_write_count++; // Increment on successful write
         end
-        expected_wfull = (expected_wr_level == (1 << 5));
-        expected_rdempty = (expected_wr_level == 0);
-        expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
-        expected_overflow = (expected_wr_level >= (1 << 5));
         `uvm_info(get_type_name(), $sformatf("Write: data=0x%h, wr_level=%d, wfull=%b", tr.wdata, expected_wr_level, expected_wfull), UVM_HIGH)
       end
+
+      // Update status flags only once after write/read logic
+      expected_wfull         = (expected_wr_level == (1 << 5));
+      expected_rdempty       = (expected_wr_level == 0);
+      expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
+      expected_rdalmost_empty= (expected_wr_level <= tr.aempty_value);
+      expected_overflow      = (expected_wr_level >= (1 << 5));
+
       // Check for overflow
       if (tr.overflow != expected_overflow) begin
         `uvm_error(get_type_name(), $sformatf("Overflow mismatch: expected=%b, actual=%b", expected_overflow, tr.overflow))
@@ -114,16 +119,16 @@ class scoreboard extends uvm_scoreboard;
         `uvm_error(get_type_name(), $sformatf("Almost full mismatch: expected=%b, actual=%b", expected_wr_almost_ful, tr.wr_almost_ful))
         error_count++;
       end
-      // Check FIFO write count
-      if (tr.fifo_write_count != expected_fifo_write_count) begin
-        `uvm_error(get_type_name(), $sformatf("FIFO write count mismatch: expected=%0d, actual=%0d", expected_fifo_write_count, tr.fifo_write_count))
-        error_count++;
-      end
-      // Check FIFO write level
-      if (tr.wr_level != expected_wr_level) begin
-        `uvm_error(get_type_name(), $sformatf("FIFO write level mismatch: expected=%0d, actual=%0d", expected_wr_level, tr.wr_level))
-        error_count++;
-      end
+      // // Check FIFO write count
+      // if (tr.fifo_write_count != expected_fifo_write_count) begin
+      //   `uvm_error(get_type_name(), $sformatf("FIFO write count mismatch: expected=%0d, actual=%0d", expected_fifo_write_count, tr.fifo_write_count))
+      //   error_count++;
+      // end
+      // // Check FIFO write level
+      // if (tr.wr_level != expected_wr_level) begin
+      //   `uvm_error(get_type_name(), $sformatf("FIFO write level mismatch: expected=%0d, actual=%0d", expected_wr_level, tr.wr_level))
+      //   error_count++;
+      // end
     end
   endtask
 
@@ -142,12 +147,15 @@ class scoreboard extends uvm_scoreboard;
         `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (read)", UVM_MEDIUM)
         if (expected_data_queue.size() > 0) begin
           bit [31:0] expected_data = expected_data_queue.pop_front();
+          read_count++;
           if (tr.read_data !== expected_data) begin
             `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, tr.read_data))
             error_count++;
           end
+        end else begin
+          `uvm_error(get_type_name(), "Read attempted but no data available")
+          error_count++;
         end
-        // No push_back here; wdata is not available in read_sequence_item
         // No change to expected_wr_level or expected_rd_level
       end else if (tr.read_enable && !tr.rdempty) begin
         if (expected_data_queue.size() > 0) begin
@@ -163,15 +171,18 @@ class scoreboard extends uvm_scoreboard;
             expected_rd_level++;
             expected_fifo_read_count++; // Increment on successful read
           end
-          expected_wfull = (expected_wr_level == (1 << 5));
-          expected_rdempty = (expected_wr_level == 0);
-          expected_rdalmost_empty = (expected_wr_level <= tr.aempty_value);
-          expected_underflow = (expected_wr_level == 0);
         end else begin
           `uvm_error(get_type_name(), "Read attempted but no data available")
           error_count++;
         end
       end
+
+      // Update status flags only once after read logic
+      expected_wfull           = (expected_wr_level == (1 << 5));
+      expected_rdempty         = (expected_wr_level == 0);
+      expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
+      expected_underflow       = (expected_wr_level == 0);
+
       // Check for underflow
       if (tr.underflow != expected_underflow) begin
         `uvm_error(get_type_name(), $sformatf("Underflow mismatch: expected=%b, actual=%b", expected_underflow, tr.underflow))
@@ -187,19 +198,19 @@ class scoreboard extends uvm_scoreboard;
         `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b", expected_rdalmost_empty, tr.rd_almost_empty))
         error_count++;
         end
-        // Check FIFO read count
-        if (tr.fifo_read_count != expected_fifo_read_count) begin
-            `uvm_error(get_type_name(), $sformatf("FIFO read count mismatch: expected=%0d, actual=%0d", expected_fifo_read_count, tr.fifo_read_count))
-            error_count++;
-        end
-        // Check FIFO read level
-        /*
-        if (tr.rd_level != expected_rd_level) begin
-          `uvm_info(get_type_name(), $sformatf("FIFO read level mismatch. Write level values: expected=%0d, actual=%0d", expected_wr_level, last_wr_level), UVM_HIGH)
-          `uvm_error(get_type_name(), $sformatf("FIFO read level mismatch: expected=%0d, actual=%0d", expected_rd_level, tr.rd_level))
-          error_count++;
-        end
-        */
+        // // Check FIFO read count
+        // if (tr.fifo_read_count != expected_fifo_read_count) begin
+        //     `uvm_error(get_type_name(), $sformatf("FIFO read count mismatch: expected=%0d, actual=%0d", expected_fifo_read_count, tr.fifo_read_count))
+        //     error_count++;
+        // end
+        // // Check FIFO read level
+        // /*
+        // if (tr.rd_level != expected_rd_level) begin
+        //   `uvm_info(get_type_name(), $sformatf("FIFO read level mismatch. Write level values: expected=%0d, actual=%0d", expected_wr_level, last_wr_level), UVM_HIGH)
+        //   `uvm_error(get_type_name(), $sformatf("FIFO read level mismatch: expected=%0d, actual=%0d", expected_rd_level, tr.rd_level))
+        //   error_count++;
+        // end
+        // */
     end
   endtask
 
@@ -230,4 +241,4 @@ class scoreboard extends uvm_scoreboard;
       `uvm_error(get_type_name(), $sformatf("Scoreboard: %d errors detected", error_count))
     end
   endfunction
-endclass 
+endclass

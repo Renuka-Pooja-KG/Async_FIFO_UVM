@@ -23,11 +23,17 @@ class write_monitor extends uvm_monitor;
     forever begin
       @(wr_vif.write_monitor_cb);
       tr = write_sequence_item::type_id::create("tr", this);
+
+      // Capture signals from the interface
+      // Asynchronous reset signals
+      tr.hw_rst_n       = wr_vif.hw_rst_n;
+      tr.mem_rst        = wr_vif.mem_rst;
+      // Synchronous signals
+      tr.sw_rst         = wr_vif.write_monitor_cb.sw_rst;
+
       tr.write_enable    = wr_vif.write_monitor_cb.write_enable;
       tr.wdata          = wr_vif.write_monitor_cb.wdata;
       tr.afull_value    = wr_vif.write_monitor_cb.afull_value;
-      tr.sw_rst         = wr_vif.write_monitor_cb.sw_rst;
-      // tr.mem_rst        = wr_vif.write_monitor_cb.mem_rst;
       tr.wfull          = wr_vif.write_monitor_cb.wfull;
       tr.wr_almost_ful  = wr_vif.write_monitor_cb.wr_almost_ful;
       tr.fifo_write_count = wr_vif.write_monitor_cb.fifo_write_count;

@@ -20,15 +20,20 @@ class write_driver extends uvm_driver #(write_sequence_item);
   task run_phase(uvm_phase phase);
     write_sequence_item tr;
     `uvm_info(get_type_name(), "write_driver run_phase started", UVM_LOW)
+
     forever begin
       seq_item_port.get_next_item(tr);
+
       // Drive stimulus to the interface
       wr_vif.write_driver_cb.write_enable <= tr.write_enable;
       wr_vif.write_driver_cb.wdata       <= tr.wdata;
       wr_vif.write_driver_cb.afull_value <= tr.afull_value;
       wr_vif.write_driver_cb.sw_rst      <= tr.sw_rst;  
-      wr_vif.write_driver_cb.hw_rst_n    <= tr.hw_rst_n;
-      wr_vif.write_driver_cb.mem_rst     <= tr.mem_rst;
+
+      // Drive asynchronous reset signals
+      wr_vif.hw_rst_n    <= tr.hw_rst_n;
+      wr_vif.mem_rst     <= tr.mem_rst;
+      
       // wr_vif.write_driver_cb.mem_rst     <= tr.mem_rst;
       @(wr_vif.write_driver_cb);
       tr.wfull = wr_vif.write_driver_cb.wfull;

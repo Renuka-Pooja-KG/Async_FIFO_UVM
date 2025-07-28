@@ -23,10 +23,17 @@ class read_driver extends uvm_driver #(read_sequence_item);
     @(posedge rd_vif.rclk);
     forever begin
       seq_item_port.get_next_item(tr);
+      // Drive stimulus to the interface
       rd_vif.read_driver_cb.read_enable <= tr.read_enable;
       rd_vif.read_driver_cb.aempty_value <= tr.aempty_value;
+
+      // Drive asynchronous reset signals
+      rd_vif.hw_rst_n <= tr.hw_rst_n;
+      // rd_vif.read_driver_cb.hw_rst_n <= tr.hw_rst_n; --- IGN
+
+      // Drive synchronous reset signals
       rd_vif.read_driver_cb.sw_rst <= tr.sw_rst;
-      rd_vif.read_driver_cb.hw_rst_n <= tr.hw_rst_n;
+      
       @(rd_vif.read_driver_cb);
       // Sample the read_data here
       tr.read_data = rd_vif.read_driver_cb.read_data;
