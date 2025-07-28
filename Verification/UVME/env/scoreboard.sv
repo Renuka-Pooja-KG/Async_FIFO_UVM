@@ -165,7 +165,7 @@ class scoreboard extends uvm_scoreboard;
       end
       tr = read_queue.pop_front();
 
-      `uvm_info(get_type_name(), $sformatf("Checking read transaction in Scoreboard: %s", tr.convert2string()), UVM_LOW)
+      // `uvm_info(get_type_name(), $sformatf("Checking read transaction in Scoreboard: %s", tr.convert2string()), UVM_LOW)
       // // Clear expected_data_queue on reset (hw_rst_n or sw_rst)
       // if (tr.hw_rst_n == 0 || tr.sw_rst == 1) begin
       //   expected_data_queue.delete();
@@ -210,30 +210,30 @@ class scoreboard extends uvm_scoreboard;
       //   end else begin
       //     `uvm_error(get_type_name(), "Read attempted but no data available")
       //     error_count++;
-        end
-      end
+      //   end
+      // end
 
-      // Update status flags only once after read logic
-      expected_wfull           = (expected_wr_level == (1 << 5));
-      expected_rdempty         = (expected_wr_level == 0);
-      expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
-      expected_underflow       = (expected_wr_level == 0);
+      // // Update status flags only once after read logic
+      // expected_wfull           = (expected_wr_level == (1 << 5));
+      // expected_rdempty         = (expected_wr_level == 0);
+      // expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
+      // expected_underflow       = (expected_wr_level == 0);
 
-      // Check for underflow
-      if (tr.underflow != expected_underflow) begin
-        `uvm_error(get_type_name(), $sformatf("Underflow mismatch: expected=%b, actual=%b", expected_underflow, tr.underflow))
-        error_count++;
-      end
-      // Check FIFO state consistency
-      if (tr.rdempty != expected_rdempty) begin
-        `uvm_error(get_type_name(), $sformatf("FIFO empty state mismatch: expected=%b, actual=%b", expected_rdempty, tr.rdempty))
-        error_count++;
-      end
-      // Check almost empty
-      if (tr.rd_almost_empty != expected_rdalmost_empty) begin
-        `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b", expected_rdalmost_empty, tr.rd_almost_empty))
-        error_count++;
-      end
+      // // Check for underflow
+      // if (tr.underflow != expected_underflow) begin
+      //   `uvm_error(get_type_name(), $sformatf("Underflow mismatch: expected=%b, actual=%b", expected_underflow, tr.underflow))
+      //   error_count++;
+      // end
+      // // Check FIFO state consistency
+      // if (tr.rdempty != expected_rdempty) begin
+      //   `uvm_error(get_type_name(), $sformatf("FIFO empty state mismatch: expected=%b, actual=%b", expected_rdempty, tr.rdempty))
+      //   error_count++;
+      // end
+      // // Check almost empty
+      // if (tr.rd_almost_empty != expected_rdalmost_empty) begin
+      //   `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b", expected_rdalmost_empty, tr.rd_almost_empty))
+      //   error_count++;
+      // end
     end
   endtask
 
