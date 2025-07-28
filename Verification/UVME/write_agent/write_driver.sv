@@ -35,7 +35,6 @@ class write_driver extends uvm_driver #(write_sequence_item);
       wr_vif.hw_rst_n    <= tr.hw_rst_n;
       wr_vif.mem_rst     <= tr.mem_rst;
 
-      wr_vif.write_driver_cb.mem_rst     <= tr.mem_rst;
       @(wr_vif.write_driver_cb);
       tr.wfull = wr_vif.write_driver_cb.wfull;
       tr.wr_almost_ful = wr_vif.write_driver_cb.wr_almost_ful;
