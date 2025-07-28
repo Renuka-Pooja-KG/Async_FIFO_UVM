@@ -72,6 +72,7 @@ class scoreboard extends uvm_scoreboard;
     forever begin
       write_fifo.get(tr);
       // Update last_write_enable and last_wfull
+      `uvm_info(get_type_name(), $sformatf("Checking write transaction: %s", tr.convert2string()), UVM_LOW)
       last_write_enable = tr.write_enable;
       last_wfull = tr.wfull;
       last_wr_level = tr.wr_level;
@@ -139,6 +140,7 @@ class scoreboard extends uvm_scoreboard;
     forever begin
       read_fifo.get(tr);
       // Update last_read_enable and last_rdempty
+      `uvm_info(get_type_name(), $sformatf("Checking read transaction: %s", tr.convert2string()), UVM_LOW)
       last_read_enable = tr.read_enable;
       last_rdempty = tr.rdempty;
       
