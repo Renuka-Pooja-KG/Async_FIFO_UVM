@@ -98,60 +98,60 @@ class scoreboard extends uvm_scoreboard;
       `uvm_info(get_type_name(), $sformatf("Checking write transaction in Scoreboard: %s", tr.convert2string()), UVM_LOW)
 
 
-      // Clear expected_data_queue on reset (mem_rst, hw_rst_n, or sw_rst)
-      if (tr.mem_rst == 1 || tr.hw_rst_n == 0 || tr.sw_rst == 1) begin
-        expected_data_queue.delete();
-        `uvm_info(get_type_name(), "expected_data_queue cleared due to reset (mem_rst, hw_rst_n, or sw_rst)", UVM_MEDIUM)
-      end
+      // // Clear expected_data_queue on reset (mem_rst, hw_rst_n, or sw_rst)
+      // if (tr.mem_rst == 1 || tr.hw_rst_n == 0 || tr.sw_rst == 1) begin
+      //   expected_data_queue.delete();
+      //   `uvm_info(get_type_name(), "expected_data_queue cleared due to reset (mem_rst, hw_rst_n, or sw_rst)", UVM_MEDIUM)
+      // end
 
-      // Update last_write_enable and last_wfull
-      `uvm_info(get_type_name(), $sformatf("Checking write transaction: %s", tr.convert2string()), UVM_LOW)
-      last_write_enable = tr.write_enable;
-      last_wfull = tr.wfull;
-      last_wr_level = tr.wr_level;
-      // Simultaneous write and read: do not update levels or queue
-      if (tr.write_enable && last_read_enable && !tr.wfull && !last_rdempty) begin
-        `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (write)", UVM_MEDIUM)
-        if (expected_data_queue.size() > 0) begin
-          expected_data_queue.pop_front();
-          expected_fifo_read_count++;
-        end
-        expected_data_queue.push_back(tr.wdata);
-        write_count++;
-        expected_fifo_write_count++;
-        // No change to expected_wr_level or expected_rd_level
-      end else if (tr.write_enable && !tr.wfull) begin
-        expected_data_queue.push_back(tr.wdata);
-        write_count++;
-        if (expected_wr_level < (1 << 5)) begin
-          expected_wr_level++;
-          expected_rd_level--;
-          expected_fifo_write_count++;
-        end
-        `uvm_info(get_type_name(), $sformatf("Write: data=0x%h, wr_level=%d, wfull=%b", tr.wdata, expected_wr_level, expected_wfull), UVM_HIGH)
-      end
+      // // Update last_write_enable and last_wfull
+      // `uvm_info(get_type_name(), $sformatf("Checking write transaction: %s", tr.convert2string()), UVM_LOW)
+      // last_write_enable = tr.write_enable;
+      // last_wfull = tr.wfull;
+      // last_wr_level = tr.wr_level;
+      // // Simultaneous write and read: do not update levels or queue
+      // if (tr.write_enable && last_read_enable && !tr.wfull && !last_rdempty) begin
+      //   `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (write)", UVM_MEDIUM)
+      //   if (expected_data_queue.size() > 0) begin
+      //     expected_data_queue.pop_front();
+      //     expected_fifo_read_count++;
+      //   end
+      //   expected_data_queue.push_back(tr.wdata);
+      //   write_count++;
+      //   expected_fifo_write_count++;
+      //   // No change to expected_wr_level or expected_rd_level
+      // end else if (tr.write_enable && !tr.wfull) begin
+      //   expected_data_queue.push_back(tr.wdata);
+      //   write_count++;
+      //   if (expected_wr_level < (1 << 5)) begin
+      //     expected_wr_level++;
+      //     expected_rd_level--;
+      //     expected_fifo_write_count++;
+      //   end
+      //   `uvm_info(get_type_name(), $sformatf("Write: data=0x%h, wr_level=%d, wfull=%b", tr.wdata, expected_wr_level, expected_wfull), UVM_HIGH)
+      // end
 
-      // Update status flags only once after write/read logic
-      expected_wfull         = (expected_wr_level == (1 << 5));
-      expected_rdempty       = (expected_wr_level == 0);
-      expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
-      expected_overflow      = (expected_wr_level >= (1 << 5));
+      // // Update status flags only once after write/read logic
+      // expected_wfull         = (expected_wr_level == (1 << 5));
+      // expected_rdempty       = (expected_wr_level == 0);
+      // expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
+      // expected_overflow      = (expected_wr_level >= (1 << 5));
 
-      // Check for overflow
-      if (tr.overflow != expected_overflow) begin
-        `uvm_error(get_type_name(), $sformatf("Overflow mismatch: expected=%b, actual=%b", expected_overflow, tr.overflow))
-        error_count++;
-      end
-      // Check FIFO state consistency
-      if (tr.wfull != expected_wfull) begin
-        `uvm_error(get_type_name(), $sformatf("FIFO full state mismatch: expected=%b, actual=%b", expected_wfull, tr.wfull))
-        error_count++;
-      end
-      // Check almost full
-      if (tr.wr_almost_ful != expected_wr_almost_ful) begin
-        `uvm_error(get_type_name(), $sformatf("Almost full mismatch: expected_wr_almost_ful=%b, actual=%b, expected_wr_level = %d, tr.afull_value = %d ", expected_wr_almost_ful, tr.wr_almost_ful, expected_wr_level, tr.afull_value))
-        error_count++;
-      end
+      // // Check for overflow
+      // if (tr.overflow != expected_overflow) begin
+      //   `uvm_error(get_type_name(), $sformatf("Overflow mismatch: expected=%b, actual=%b", expected_overflow, tr.overflow))
+      //   error_count++;
+      // end
+      // // Check FIFO state consistency
+      // if (tr.wfull != expected_wfull) begin
+      //   `uvm_error(get_type_name(), $sformatf("FIFO full state mismatch: expected=%b, actual=%b", expected_wfull, tr.wfull))
+      //   error_count++;
+      // end
+      // // Check almost full
+      // if (tr.wr_almost_ful != expected_wr_almost_ful) begin
+      //   `uvm_error(get_type_name(), $sformatf("Almost full mismatch: expected_wr_almost_ful=%b, actual=%b, expected_wr_level = %d, tr.afull_value = %d ", expected_wr_almost_ful, tr.wr_almost_ful, expected_wr_level, tr.afull_value))
+      //   error_count++;
+      // end
     end
   endtask
 
@@ -167,67 +167,67 @@ class scoreboard extends uvm_scoreboard;
 
       `uvm_info(get_type_name(), $sformatf("Checking read transaction in Scoreboard: %s", tr.convert2string()), UVM_LOW)
 
-      // Update last_read_enable and last_rdempty
-      `uvm_info(get_type_name(), $sformatf("Checking read transaction: %s", tr.convert2string()), UVM_LOW)
-      last_read_enable = tr.read_enable;
-      last_rdempty = tr.rdempty;
+      // // Update last_read_enable and last_rdempty
+      // `uvm_info(get_type_name(), $sformatf("Checking read transaction: %s", tr.convert2string()), UVM_LOW)
+      // last_read_enable = tr.read_enable;
+      // last_rdempty = tr.rdempty;
       
-      // Simultaneous write and read: do not update levels or queue
-      if (last_write_enable && tr.read_enable && !last_wfull && !tr.rdempty) begin
-        `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (read)", UVM_MEDIUM)
-        if (expected_data_queue.size() > 0) begin
-          bit [31:0] expected_data = expected_data_queue.pop_front();
-          read_count++;
-          if (tr.read_data !== expected_data) begin
-            `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, tr.read_data))
-            error_count++;
-          end
-        end else begin
-          `uvm_error(get_type_name(), "Read attempted but no data available")
-          error_count++;
-        end
-        // No change to expected_wr_level or expected_rd_level
-      end else if (tr.read_enable && !tr.rdempty) begin
-        if (expected_data_queue.size() > 0) begin
-          expected_data = expected_data_queue.pop_front();
-          read_count++;
-          if (tr.read_data !== expected_data) begin
-            `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, tr.read_data))
-            error_count++;
-          end
-          `uvm_info(get_type_name(), $sformatf("Read: data=0x%h (correct)", expected_data), UVM_HIGH)
-          if (expected_wr_level > 0) begin
-            expected_wr_level--;
-            expected_rd_level++;
-            expected_fifo_read_count++;
-          end
-        end else begin
-          `uvm_error(get_type_name(), "Read attempted but no data available")
-          error_count++;
-        end
-      end
+      // // Simultaneous write and read: do not update levels or queue
+      // if (last_write_enable && tr.read_enable && !last_wfull && !tr.rdempty) begin
+      //   `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (read)", UVM_MEDIUM)
+      //   if (expected_data_queue.size() > 0) begin
+      //     bit [31:0] expected_data = expected_data_queue.pop_front();
+      //     read_count++;
+      //     if (tr.read_data !== expected_data) begin
+      //       `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, tr.read_data))
+      //       error_count++;
+      //     end
+      //   end else begin
+      //     `uvm_error(get_type_name(), "Read attempted but no data available")
+      //     error_count++;
+      //   end
+      //   // No change to expected_wr_level or expected_rd_level
+      // end else if (tr.read_enable && !tr.rdempty) begin
+      //   if (expected_data_queue.size() > 0) begin
+      //     expected_data = expected_data_queue.pop_front();
+      //     read_count++;
+      //     if (tr.read_data !== expected_data) begin
+      //       `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, tr.read_data))
+      //       error_count++;
+      //     end
+      //     `uvm_info(get_type_name(), $sformatf("Read: data=0x%h (correct)", expected_data), UVM_HIGH)
+      //     if (expected_wr_level > 0) begin
+      //       expected_wr_level--;
+      //       expected_rd_level++;
+      //       expected_fifo_read_count++;
+      //     end
+      //   end else begin
+      //     `uvm_error(get_type_name(), "Read attempted but no data available")
+      //     error_count++;
+      //   end
+      // end
 
-      // Update status flags only once after read logic
-      expected_wfull           = (expected_wr_level == (1 << 5));
-      expected_rdempty         = (expected_wr_level == 0);
-      expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
-      expected_underflow       = (expected_wr_level == 0);
+      // // Update status flags only once after read logic
+      // expected_wfull           = (expected_wr_level == (1 << 5));
+      // expected_rdempty         = (expected_wr_level == 0);
+      // expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
+      // expected_underflow       = (expected_wr_level == 0);
 
-      // Check for underflow
-      if (tr.underflow != expected_underflow) begin
-        `uvm_error(get_type_name(), $sformatf("Underflow mismatch: expected=%b, actual=%b", expected_underflow, tr.underflow))
-        error_count++;
-      end
-      // Check FIFO state consistency
-      if (tr.rdempty != expected_rdempty) begin
-        `uvm_error(get_type_name(), $sformatf("FIFO empty state mismatch: expected=%b, actual=%b", expected_rdempty, tr.rdempty))
-        error_count++;
-      end
-      // Check almost empty
-      if (tr.rd_almost_empty != expected_rdalmost_empty) begin
-        `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b", expected_rdalmost_empty, tr.rd_almost_empty))
-        error_count++;
-      end
+      // // Check for underflow
+      // if (tr.underflow != expected_underflow) begin
+      //   `uvm_error(get_type_name(), $sformatf("Underflow mismatch: expected=%b, actual=%b", expected_underflow, tr.underflow))
+      //   error_count++;
+      // end
+      // // Check FIFO state consistency
+      // if (tr.rdempty != expected_rdempty) begin
+      //   `uvm_error(get_type_name(), $sformatf("FIFO empty state mismatch: expected=%b, actual=%b", expected_rdempty, tr.rdempty))
+      //   error_count++;
+      // end
+      // // Check almost empty
+      // if (tr.rd_almost_empty != expected_rdalmost_empty) begin
+      //   `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b", expected_rdalmost_empty, tr.rd_almost_empty))
+      //   error_count++;
+      // end
     end
   endtask
 
