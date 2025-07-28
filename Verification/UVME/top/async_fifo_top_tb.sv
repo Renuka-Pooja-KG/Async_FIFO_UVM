@@ -78,7 +78,7 @@ module async_fifo_top_tb;
   // Start UVM
   initial begin
     // Start UVM
-    run_test("reset_test");
+    run_test("base_test");
   end
 
   always @(posedge wclk) begin

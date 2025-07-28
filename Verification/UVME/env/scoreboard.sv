@@ -165,13 +165,7 @@ class scoreboard extends uvm_scoreboard;
       end
       tr = read_queue.pop_front();
 
-      // `uvm_info(get_type_name(), $sformatf("Checking read transaction in Scoreboard: %s", tr.convert2string()), UVM_LOW)
-      // // Clear expected_data_queue on reset (hw_rst_n or sw_rst)
-      // if (tr.hw_rst_n == 0 || tr.sw_rst == 1) begin
-      //   expected_data_queue.delete();
-      //   `uvm_info(get_type_name(), "expected_data_queue cleared in check_read_transactions due to reset (hw_rst_n or sw_rst)", UVM_MEDIUM)
-      //   tr.read_data = 0;
-      // end
+      `uvm_info(get_type_name(), $sformatf("Checking read transaction in Scoreboard: %s", tr.convert2string()), UVM_LOW)
 
       // // Update last_read_enable and last_rdempty
       // `uvm_info(get_type_name(), $sformatf("Checking read transaction: %s", tr.convert2string()), UVM_LOW)

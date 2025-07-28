@@ -2,8 +2,8 @@ class base_test extends uvm_test;
   `uvm_component_utils(base_test)
 
   env m_env;
-  //write_base_sequence wseq;
-  //read_base_sequence rseq;
+  write_base_sequence wseq;
+  read_base_sequence rseq;
 
   function new(string name = "base_test", uvm_component parent = null);
     super.new(name, parent);
@@ -12,22 +12,24 @@ class base_test extends uvm_test;
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     m_env = env::type_id::create("m_env", this);
-    //wseq = write_base_sequence::type_id::create("wseq");
-    //rseq = read_base_sequence::type_id::create("rseq");
+    wseq = write_base_sequence::type_id::create("wseq");
+    rseq = read_base_sequence::type_id::create("rseq");
+    `uvm_info(get_type_name(), "Base test build_phase completed", UVM_LOW)
   endfunction
 
   function void end_of_elaboration_phase(uvm_phase phase);
     super.end_of_elaboration_phase(phase);
     uvm_top.print_topology();
+    `uvm_info(get_type_name(), "Base test end_of_elaboration_phase completed", UVM_LOW)
   endfunction
 
   task run_phase(uvm_phase phase);
     phase.raise_objection(this);
-    // fork
-    //   // Sequence starting should be done in derived tests
-    //   wseq.start(m_env.m_write_agent.m_sequencer);
-    //   rseq.start(m_env.m_read_agent.m_sequencer);
-    // join
+    fork
+      // Sequence starting should be done in derived tests
+      wseq.start(m_env.m_write_agent.m_sequencer);
+      rseq.start(m_env.m_read_agent.m_sequencer);
+    join
     `uvm_info(get_type_name(), "Base test run_phase - sequences should be applied in derived tests", UVM_LOW)
     phase.drop_objection(this);
   endtask

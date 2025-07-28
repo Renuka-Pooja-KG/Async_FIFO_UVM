@@ -15,7 +15,7 @@ class read_monitor extends uvm_monitor;
     if (!uvm_config_db#(virtual rd_interface)::get(this, "", "rd_vif", rd_vif)) begin
       `uvm_fatal("NOVIF", "Could not get rd_vif from uvm_config_db")
     end
-    
+
     tr = read_sequence_item::type_id::create("tr", this);
 
     `uvm_info(get_type_name(), "read_monitor build_phase completed, interface acquired", UVM_MEDIUM)
@@ -29,10 +29,10 @@ class read_monitor extends uvm_monitor;
       @(rd_vif.read_monitor_cb);
 
       // Capture signals from the interface
-      // Asynchronous reset signals
-      tr.hw_rst_n       = rd_vif.hw_rst_n;
-      // Synchronous signals
-      tr.sw_rst         = rd_vif.read_monitor_cb.sw_rst;
+      // // Asynchronous reset signals
+      // tr.hw_rst_n       = rd_vif.hw_rst_n;
+      // // Synchronous signals
+      // tr.sw_rst         = rd_vif.read_monitor_cb.sw_rst;
 
       tr.read_enable      = rd_vif.read_monitor_cb.read_enable;
       tr.aempty_value    = rd_vif.read_monitor_cb.aempty_value;
@@ -45,8 +45,8 @@ class read_monitor extends uvm_monitor;
       tr.read_data       = rd_vif.read_monitor_cb.read_data;
 
       // Print all rd_vif signals for debug
-      $monitor("Time=%0t rd_vif: hw_rst_n=%b sw_rst=%b read_enable=%b aempty_value=%d rdempty=%b rd_almost_empty=%b fifo_read_count=%d underflow=%b rd_level=%d read_data=%h",
-        $time, rd_vif.hw_rst_n, rd_vif.read_monitor_cb.sw_rst, rd_vif.read_monitor_cb.read_enable, rd_vif.read_monitor_cb.aempty_value,
+      $monitor("Time=%0t rd_vif: read_enable=%b aempty_value=%d rdempty=%b rd_almost_empty=%b fifo_read_count=%d underflow=%b rd_level=%d read_data=%h",
+        $time, rd_vif.read_monitor_cb.read_enable, rd_vif.read_monitor_cb.aempty_value,
         rd_vif.read_monitor_cb.rdempty, rd_vif.read_monitor_cb.rd_almost_empty, rd_vif.read_monitor_cb.fifo_read_count,
         rd_vif.read_monitor_cb.underflow, rd_vif.read_monitor_cb.rd_level, rd_vif.read_monitor_cb.read_data);
 

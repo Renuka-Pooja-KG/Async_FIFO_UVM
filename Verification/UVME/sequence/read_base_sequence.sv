@@ -42,8 +42,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     // Hardware reset for 3 cycles
     repeat (3) begin
       `uvm_do_with(req, {
-        hw_rst_n == 0; // Assert hardware reset
-        sw_rst == 0; // Ensure software reset is low
+        // hw_rst_n == 0; // Assert hardware reset
+        // sw_rst == 0; // Ensure software reset is low
         read_enable == 0;
         aempty_value == 2;
       })
@@ -51,8 +51,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     end
     // De-assert hardware reset
     `uvm_do_with(req, {
-      hw_rst_n == 1; // De-assert hardware reset
-      sw_rst == 0; // Ensure software reset is low
+      // hw_rst_n == 1; // De-assert hardware reset
+      // sw_rst == 0; // Ensure software reset is low
       read_enable == 0;
       aempty_value == 2;
     })
@@ -60,8 +60,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     // Software reset for 2 cycles
     repeat (2) begin
       `uvm_do_with(req, {
-        hw_rst_n == 1; // Ensure hardware reset is de-asserted
-        sw_rst == 1; // Assert software reset
+        // hw_rst_n == 1; // Ensure hardware reset is de-asserted
+        // sw_rst == 1; // Assert software reset
         read_enable == 0;
         aempty_value == 2;
       })
@@ -69,8 +69,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     end
     // De-assert software reset
     `uvm_do_with(req, {
-      hw_rst_n == 1; // Ensure hardware reset is de-asserted
-      sw_rst == 0; // De-assert software reset
+      // hw_rst_n == 1; // Ensure hardware reset is de-asserted
+      // sw_rst == 0; // De-assert software reset
       read_enable == 0;
       aempty_value == 2;
     })
@@ -78,8 +78,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     // Memory reset in write domain for 3 cycles
     repeat (3) begin
       `uvm_do_with(req, {
-        hw_rst_n == 1; // De-assert hardware reset
-        sw_rst == 0; // Ensure software reset is low
+        // hw_rst_n == 1; // De-assert hardware reset
+        // sw_rst == 0; // Ensure software reset is low
         read_enable == 0;
         aempty_value == 2;
       })
@@ -87,8 +87,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     end
     // De-assert hardware reset
     `uvm_do_with(req, {
-      hw_rst_n == 1; // De-assert hardware reset
-      sw_rst == 0; // Ensure software reset is low
+      // hw_rst_n == 1; // De-assert hardware reset
+      // sw_rst == 0; // Ensure software reset is low
       read_enable == 0;
       aempty_value == 2;
     })
@@ -103,8 +103,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Ensure read_enable is low
-      req.sw_rst      = 0; // Ensure software reset is low
-      req.hw_rst_n    = 1; // Ensure hardware reset is de-asserted
+      // req.sw_rst      = 0; // Ensure software reset is low
+      // req.hw_rst_n    = 1; // Ensure hardware reset is de-asserted
       req.aempty_value = 4;
       finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.convert2string()), UVM_HIGH)
@@ -118,8 +118,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 1;
-      req.sw_rst      = 0; // Ensure software reset is low
-      req.hw_rst_n    = 1; // Ensure hardware reset is de-asserted
+      // req.sw_rst      = 0; // Ensure software reset is low
+      // req.hw_rst_n    = 1; // Ensure hardware reset is de-asserted
       req.aempty_value = 4;
       finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Read-only: %s", req.convert2string()), UVM_HIGH)
@@ -135,8 +135,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
       req.read_enable = 1; // Ensure read_enable is high
       req.aempty_value = 4; // Set aempty_value to a valid state
       // Simulate simultaneous reset conditions
-      req.hw_rst_n    = 1; // Ensure hardware reset is de-asserted
-      req.sw_rst      = 0; // Ensure software reset is de-asserted
+      // req.hw_rst_n    = 1; // Ensure hardware reset is de-asserted
+      // req.sw_rst      = 0; // Ensure software reset is de-asserted
       finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Simultaneous: %s", req.convert2string()), UVM_HIGH)
     end
