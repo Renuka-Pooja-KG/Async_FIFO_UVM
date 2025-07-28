@@ -4,7 +4,7 @@ class read_only_test extends base_test;
     write_base_sequence wseq;
     read_base_sequence rseq;
 
-    function void new(string name = "read_only_test", uvm_component parent = null);
+    function new(string name = "read_only_test", uvm_component parent = null);
       super.new(name, parent);
     endfunction
 
