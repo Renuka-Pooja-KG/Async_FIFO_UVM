@@ -187,15 +187,16 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
     `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.convert2string()), UVM_HIGH)
     // Write operation for 10 cycles
     repeat (10) begin
-      `uvm_do_with(req, {
-        hw_rst_n == 1; // Ensure hardware reset is de-asserted
-        sw_rst == 0; // Ensure software reset is low
-        mem_rst == 0; // Ensure memory reset is low
-        write_enable == 1; // Enable write operation
-        wdata == $urandom_range(0, 32'hFFFFFFFF); // Random data
-        afull_value == 28; // Set afull_value to a valid state
-      })
-      `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.convert2string()), UVM_HIGH)
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.write_enable = 1;
+      req.sw_rst      = 0;
+      req.hw_rst_n    = 1;
+      req.mem_rst     = 0;
+      req.wdata       = $urandom_range(0, 32'hFFFFFFFF);
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.convert2string()), UVM_HIGH)
     end
     // Read operation for 5 cycles
     repeat (5) begin    
@@ -211,15 +212,16 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
     end
     // Write operation for 10 cycles
     repeat (10) begin
-      `uvm_do_with(req, {
-        hw_rst_n == 1; // Ensure hardware reset is de-asserted
-        sw_rst == 0; // Ensure software reset is low
-        mem_rst == 0; // Ensure memory reset is low
-        write_enable == 1; // Enable write operation
-        wdata == $urandom_range(0, 32'hFFFFFFFF); // Random data
-        afull_value == 28; // Set afull_value to a valid state
-      })
-      `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.convert2string()), UVM_HIGH)
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.write_enable = 1;
+      req.sw_rst      = 0;
+      req.hw_rst_n    = 1;
+      req.mem_rst     = 0;
+      req.wdata       = $urandom_range(0, 32'hFFFFFFFF);
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.convert2string()), UVM_HIGH)
     end
     // Read operation for 5 cycles
     repeat (5) begin
