@@ -13,13 +13,14 @@ info:
 	@echo "  read_test  				----> to run the read_test.sv"
 	@echo "  simultaneous_test  		----> to run the simultaneous_test.sv"
 	@echo "  random_test  				----> to run the random_test.sv"
+	@echo "  reset_write_read_test  	----> to run the reset_write_read_test.sv"
 	@echo "  waveform   				----> to open the simvision"
 	@echo "  regression 				----> to run the regression & source the cmd and open the imc"
 	@echo "  clean      				----> to delete the previous xrun files and cov files"
 	@echo "/----------------------------------------------------------------------------------------//"
 
 # Default target that runs all tests
-all: base_test reset_test write_test read_test simultaneous_test random_test waveform
+all: base_test reset_test write_test read_test simultaneous_test random_test  reset_write_read_test waveform
 
 # Base test case
 base_test:
@@ -50,6 +51,11 @@ simultaneous_test:
 random_test:
 	@echo "[makefile]  random test case is running"
 	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=random_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  random test case run is completed successfully"
+
+reset_write_read_test:
+	@echo "[makefile]  random test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=reset_write_read_test -uvmhome CDNS-1.1d
 	@echo "[makefile]  random test case run is completed successfully"
 
 # regression

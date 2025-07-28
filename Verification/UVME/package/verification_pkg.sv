@@ -37,6 +37,7 @@ import uvm_pkg::*;
 `include "./../UVME/test/random_test.sv"
 `include "./../UVME/test/reset_test.sv"
 `include "./../UVME/test/simultaneous_test.sv"
+`include "./../UVME/test/reset_write_read_test.sv"
 
 
 endpackage

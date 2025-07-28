@@ -3,7 +3,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
 
   // Configuration parameters
   int num_transactions = 10;
-  int scenario = 0; // 0: random, 1: reset, 2: write_only, 3: read_only, 4: simultaneous
+  int scenario = 0; // 0: random, 1: reset, 2: write_only, 3: read_only, 4: simultaneous, 5: reset-write-read
 
   function new(string name = "write_base_sequence");
     super.new(name);
@@ -17,6 +17,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       2: write_only_scenario();
       3: read_only_scenario();
       4: simultaneous_scenario();
+      5: reset_write_read_scenario();
       default: random_scenario();
     endcase
     `uvm_info(get_type_name(), "write_base_sequence completed", UVM_LOW)
@@ -158,4 +159,79 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       `uvm_info(get_type_name(), $sformatf("Simultaneous: %s", req.convert2string()), UVM_HIGH)
     end
   endtask
+
+  // Reset - write  - read - write - read
+  task reset_write_read_scenario();
+    write_sequence_item req;
+    // Hardware reset for 3 cycles
+    repeat (3) begin
+      `uvm_do_with(req, {
+        hw_rst_n == 0; // Assert hardware reset
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 0;
+        wdata == 0;
+        afull_value == 28;
+      })
+      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.convert2string()), UVM_HIGH)
+    end
+    // De-assert hardware reset
+    `uvm_do_with(req, {
+      hw_rst_n == 1; // De-assert hardware reset
+      sw_rst == 0; // Ensure software reset is low
+      mem_rst == 0; // Ensure memory reset is low
+      write_enable == 0;
+      wdata == 0;
+      afull_value == 28;
+    })
+    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.convert2string()), UVM_HIGH)
+    // Write operation for 10 cycles
+    repeat (10) begin
+      `uvm_do_with(req, {
+        hw_rst_n == 1; // Ensure hardware reset is de-asserted
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 1; // Enable write operation
+        wdata == $urandom_range(0, 32'hFFFFFFFF); // Random data
+        afull_value == 28; // Set afull_value to a valid state
+      })
+      `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.convert2string()), UVM_HIGH)
+    end
+    // Read operation for 5 cycles
+    repeat (5) begin    
+      `uvm_do_with(req, {
+        hw_rst_n == 1; // Ensure hardware reset is de-asserted
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 0; // Disable write operation
+        wdata == 0; // No data for read operation
+        afull_value == 28; // Set afull_value to a valid state
+      })
+      `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.convert2string()), UVM_HIGH)
+    end
+    // Write operation for 10 cycles
+    repeat (10) begin
+      `uvm_do_with(req, {
+        hw_rst_n == 1; // Ensure hardware reset is de-asserted
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 1; // Enable write operation
+        wdata == $urandom_range(0, 32'hFFFFFFFF); // Random data
+        afull_value == 28; // Set afull_value to a valid state
+      })
+      `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.convert2string()), UVM_HIGH)
+    end
+    // Read operation for 5 cycles
+    repeat (5) begin
+      `uvm_do_with(req, {
+        hw_rst_n == 1; // Ensure hardware reset is de-asserted
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 0; // Disable write operation
+        wdata == 0; // No data for read operation
+        afull_value == 28; // Set afull_value to a valid state
+      })
+      `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.convert2string()), UVM_HIGH)
+    end
+    endtask
 endclass
