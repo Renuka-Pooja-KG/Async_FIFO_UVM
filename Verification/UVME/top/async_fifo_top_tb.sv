@@ -86,7 +86,7 @@ module async_fifo_top_tb;
   end
 
   always @(posedge rclk) begin
-    $monitor("Time=%0t From TOP MODULE: rd_if: read_enable=%b aempty_value=%d hw_rst_n=%b", $time, rd_if.read_enable, rd_if.aempty_value, rd_if.hw_rst_n);
+    $monitor("Time=%0t From TOP MODULE: rd_if: read_enable=%b aempty_value=%d", $time, rd_if.read_enable, rd_if.aempty_value);
   end
 
 endmodule
