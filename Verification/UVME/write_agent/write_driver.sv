@@ -18,6 +18,7 @@ class write_driver extends uvm_driver #(write_sequence_item);
   endfunction
 
   task run_phase(uvm_phase phase);
+    super.run_phase(phase);
     write_sequence_item tr;
     `uvm_info(get_type_name(), "write_driver run_phase started", UVM_LOW)
 

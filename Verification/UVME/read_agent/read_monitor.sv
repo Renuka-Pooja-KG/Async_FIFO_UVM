@@ -19,6 +19,7 @@ class read_monitor extends uvm_monitor;
   endfunction
 
   task run_phase(uvm_phase phase);
+  super.run_phase(phase);
     `uvm_info(get_type_name(), "read_monitor run_phase started", UVM_LOW)
     tr = read_sequence_item::type_id::create("tr", this);
 

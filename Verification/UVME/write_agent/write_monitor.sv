@@ -19,7 +19,8 @@ class write_monitor extends uvm_monitor;
   endfunction
 
   task run_phase(uvm_phase phase);
-    write_sequence_item tr;
+    //write_sequence_item tr;
+    super.run_phase(phase);
     `uvm_info(get_type_name(), "write_monitor run_phase started", UVM_LOW)
     tr = write_sequence_item::type_id::create("tr", this);
 
@@ -47,7 +48,7 @@ class write_monitor extends uvm_monitor;
         wr_vif.write_monitor_cb.wdata, wr_vif.write_monitor_cb.afull_value, wr_vif.write_monitor_cb.wfull,
         wr_vif.write_monitor_cb.wr_almost_ful, wr_vif.write_monitor_cb.fifo_write_count,
         wr_vif.write_monitor_cb.wr_level, wr_vif.write_monitor_cb.overflow);
-        
+
       `uvm_info(get_type_name(), $sformatf("Captured write transaction in write_monitor: %s", tr.convert2string()), UVM_LOW)
       write_analysis_port.write(tr);
     end
