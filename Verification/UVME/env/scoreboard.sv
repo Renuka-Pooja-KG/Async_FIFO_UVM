@@ -115,8 +115,8 @@ class scoreboard extends uvm_scoreboard;
         error_count++;
       end
       // Check almost full
-      if (tr.wr_almost_ful != expected_wr_almost_ful) begin
-        `uvm_error(get_type_name(), $sformatf("Almost full mismatch: expected=%b, actual=%b", expected_wr_almost_ful, tr.wr_almost_ful))
+      if (tr.wr_almost_ful != expected_wr_almost_ful) begin //     expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
+        `uvm_error(get_type_name(), $sformatf("Almost full mismatch: expected_wr_almost_ful=%b, actual=%b, expected_wr_level = %d, tr.afull_value = %d ", expected_wr_almost_ful, tr.wr_almost_ful, expected_wr_level, tr.afull_value))
         error_count++;
       end
       // // Check FIFO write count
