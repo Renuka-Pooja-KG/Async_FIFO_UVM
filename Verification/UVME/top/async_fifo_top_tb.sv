@@ -82,11 +82,11 @@ module async_fifo_top_tb;
   end
 
   always @(posedge wclk) begin
-    $display("Time=%0t wr_if: wdata=%h write_enable=%b afull_value=%d hw_rst_n=%b", $time, wr_if.wdata, wr_if.write_enable, wr_if.afull_value, wr_if.hw_rst_n);
+    $monitor("Time=%0t From TOP MODULE: wr_if: wdata=%h write_enable=%b afull_value=%d hw_rst_n=%b", $time, wr_if.wdata, wr_if.write_enable, wr_if.afull_value, wr_if.hw_rst_n);
   end
 
   always @(posedge rclk) begin
-    $display("Time=%0t rd_if: read_enable=%b aempty_value=%d hw_rst_n=%b", $time, rd_if.read_enable, rd_if.aempty_value, rd_if.hw_rst_n);
+    $monitor("Time=%0t From TOP MODULE: rd_if: read_enable=%b aempty_value=%d hw_rst_n=%b", $time, rd_if.read_enable, rd_if.aempty_value, rd_if.hw_rst_n);
   end
 
 endmodule

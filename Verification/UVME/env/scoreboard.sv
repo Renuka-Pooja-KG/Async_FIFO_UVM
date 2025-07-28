@@ -58,11 +58,21 @@ class scoreboard extends uvm_scoreboard;
 
   // Analysis implementation for write transactions
   function void write_wr(write_sequence_item tr);
+  `uvm_info(get_type_name(), $sformatf("Received write transaction: %s", tr.convert2string()), UVM_LOW)
+    if (tr == null) begin
+      `uvm_error(get_type_name(), "Received null write transaction")
+      return;
+    end
     write_queue.push_back(tr); // Store received write transaction
   endfunction
 
   // Analysis implementation for read transactions
   function void write_rd(read_sequence_item tr);
+  `uvm_info(get_type_name(), $sformatf("Received read transaction: %s", tr.convert2string()), UVM_LOW)
+    if (tr == null) begin
+      `uvm_error(get_type_name(), "Received null read transaction")
+      return;
+    end
     read_queue.push_back(tr); // Store received read transaction
   endfunction
 
