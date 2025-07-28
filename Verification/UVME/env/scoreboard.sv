@@ -80,7 +80,7 @@ class scoreboard extends uvm_scoreboard;
     write_sequence_item tr;
     forever begin
       if (write_queue.size() == 0) begin
-        @(write_queue);
+        wait (write_queue.size() > 0);
       end
       tr = write_queue.pop_front();
 
@@ -146,7 +146,7 @@ class scoreboard extends uvm_scoreboard;
     bit [31:0] expected_data;
     forever begin
       if (read_queue.size() == 0) begin
-        @(read_queue);
+        wait (read_queue.size() > 0);
       end
       tr = read_queue.pop_front();
 
