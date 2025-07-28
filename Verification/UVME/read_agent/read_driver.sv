@@ -18,6 +18,8 @@ class read_driver extends uvm_driver #(read_sequence_item);
   endfunction
 
   task run_phase(uvm_phase phase);
+  super.run_phase(phase);
+
    // read_sequence_item tr;
     `uvm_info(get_type_name(), "read_driver run_phase started", UVM_LOW)
     @(posedge rd_vif.rclk);
