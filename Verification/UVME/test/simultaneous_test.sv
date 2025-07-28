@@ -16,7 +16,7 @@ class simultaneous_test extends base_test;
         rseq.scenario = 4; // simultaneous
         wseq.num_transactions = 20; // Set number of transactions for write sequence
         rseq.num_transactions = 20; // Set number of transactions for read sequence
-        `uvm_info(get_type_name(), "Simultaneous test build_phase completed", U
+        `uvm_info(get_type_name(), "Simultaneous test build_phase completed", UVM_LOW)
     endfunction
 
     task run_phase(uvm_phase phase);

@@ -16,7 +16,7 @@ class write_only_test extends base_test;
         rseq.scenario = 2; // write_only
         wseq.num_transactions = 30; // Set number of transactions for write sequence
         rseq.num_transactions = 30; // Set number of transactions for read sequence
-        `uvm_info(get_type_name(), "Write only test build_phase completed", UVM
+        `uvm_info(get_type_name(), "Write only test build_phase completed", UVM_LOW)
     endfunction
 
     task run_phase(uvm_phase phase);
