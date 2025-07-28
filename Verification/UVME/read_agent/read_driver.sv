@@ -33,15 +33,15 @@ class read_driver extends uvm_driver #(read_sequence_item);
 
       // Drive synchronous reset signals
       rd_vif.read_driver_cb.sw_rst <= tr.sw_rst;
-      
-      @(rd_vif.read_driver_cb);
-      // Sample the read_data here
-      tr.read_data = rd_vif.read_driver_cb.read_data;
-      tr.rdempty = rd_vif.read_driver_cb.rdempty;
-      tr.rd_almost_empty = rd_vif.read_driver_cb.rd_almost_empty;
-      tr.fifo_read_count = rd_vif.read_driver_cb.fifo_read_count;
-      tr.underflow = rd_vif.read_driver_cb.underflow;
-      tr.rd_level = rd_vif.read_driver_cb.rd_level;
+
+      // @(rd_vif.read_driver_cb);
+      // // Sample the read_data here
+      // tr.read_data = rd_vif.read_driver_cb.read_data;
+      // tr.rdempty = rd_vif.read_driver_cb.rdempty;
+      // tr.rd_almost_empty = rd_vif.read_driver_cb.rd_almost_empty;
+      // tr.fifo_read_count = rd_vif.read_driver_cb.fifo_read_count;
+      // tr.underflow = rd_vif.read_driver_cb.underflow;
+      // tr.rd_level = rd_vif.read_driver_cb.rd_level;
       `uvm_info(get_type_name(), $sformatf("read_driver: tr = %s", tr.convert2string()), UVM_LOW)
       seq_item_port.item_done();
     end

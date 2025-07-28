@@ -39,6 +39,7 @@ class write_monitor extends uvm_monitor;
       tr.fifo_write_count = wr_vif.write_monitor_cb.fifo_write_count;
       tr.wr_level       = wr_vif.write_monitor_cb.wr_level;
       tr.overflow       = wr_vif.write_monitor_cb.overflow;
+      `uvm_info(get_type_name(), $sformatf("Captured write transaction in write_monitor: %s", tr.convert2string()), UVM_LOW)
       write_analysis_port.write(tr);
     end
   endtask
