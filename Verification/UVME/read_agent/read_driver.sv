@@ -44,7 +44,7 @@ class read_driver extends uvm_driver #(read_sequence_item);
       // tr.fifo_read_count = rd_vif.read_driver_cb.fifo_read_count;
       // tr.underflow = rd_vif.read_driver_cb.underflow;
       // tr.rd_level = rd_vif.read_driver_cb.rd_level;
-      `uvm_info(get_type_name(), $sformatf("read_driver: tr = %s", tr.print), UVM_LOW)
+      `uvm_info(get_type_name(), $sformatf("read_driver: tr = %s", tr.sprint), UVM_LOW)
       seq_item_port.item_done();
     end
   endtask

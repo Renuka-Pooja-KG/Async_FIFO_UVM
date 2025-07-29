@@ -41,7 +41,7 @@ class write_driver extends uvm_driver #(write_sequence_item);
       // tr.fifo_write_count = wr_vif.write_driver_cb.fifo_write_count;
       // tr.overflow = wr_vif.write_driver_cb.overflow;
       // tr.wr_level = wr_vif.write_driver_cb.wr_level;
-      `uvm_info(get_type_name(), $sformatf("write_driver: tr = %s", tr.print), UVM_LOW)
+      `uvm_info(get_type_name(), $sformatf("write_driver: tr = %s", tr.sprint), UVM_LOW)
       seq_item_port.item_done();
     end
   endtask

@@ -50,7 +50,7 @@ class read_monitor extends uvm_monitor;
       //   rd_vif.read_monitor_cb.rdempty, rd_vif.read_monitor_cb.rd_almost_empty, rd_vif.read_monitor_cb.fifo_read_count,
       //   rd_vif.read_monitor_cb.underflow, rd_vif.read_monitor_cb.rd_level, rd_vif.read_monitor_cb.read_data);
 
-      `uvm_info(get_type_name(), $sformatf("Captured read transaction in read_monitor: %s", tr.print), UVM_LOW)
+      `uvm_info(get_type_name(), $sformatf("Captured read transaction in read_monitor: %s", tr.sprint), UVM_LOW)
 
       read_analysis_port.write(tr);
     end

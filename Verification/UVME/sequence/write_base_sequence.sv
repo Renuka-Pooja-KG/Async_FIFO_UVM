@@ -33,7 +33,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       end
       start_item(req);
       finish_item(req);
-      `uvm_info(get_type_name(), $sformatf("Random: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Random: %s", req.sprint), UVM_HIGH)
     end
   endtask
 
@@ -50,7 +50,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
         wdata == 0;
         afull_value == 28;
       })
-      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.sprint), UVM_HIGH)
     end
     // De-assert hardware reset
     `uvm_do_with(req, {
@@ -61,7 +61,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       wdata == 0;
       afull_value == 28;
     })
-    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.print), UVM_HIGH)
+    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.sprint), UVM_HIGH)
     // Software reset for 2 cycles
     repeat (2) begin
       `uvm_do_with(req, {
@@ -72,7 +72,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
         wdata == 0;
         afull_value == 28;
       })
-      `uvm_info(get_type_name(), $sformatf("Software Reset: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Software Reset: %s", req.sprint), UVM_HIGH)
     end
     // De-assert software reset
     `uvm_do_with(req, {
@@ -83,7 +83,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       wdata == 0;
       afull_value == 28;
     })
-    `uvm_info(get_type_name(), $sformatf("Normal Operation: %s", req.print), UVM_HIGH)
+    `uvm_info(get_type_name(), $sformatf("Normal Operation: %s", req.sprint), UVM_HIGH)
     // Memory reset for 3 cycles
     repeat (3) begin
       `uvm_do_with(req, {
@@ -94,7 +94,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
         wdata == 0;
         afull_value == 28;
       })
-      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.sprint), UVM_HIGH)
     end
     // De-assert hardware reset
     `uvm_do_with(req, {
@@ -105,7 +105,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       wdata == 0;
       afull_value == 28;
     })
-    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.print), UVM_HIGH)
+    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.sprint), UVM_HIGH)
    
   endtask
 
@@ -122,7 +122,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       req.wdata       = $urandom_range(0, 32'hFFFFFFFF);
       req.afull_value = 28;
       finish_item(req);
-      `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.sprint), UVM_HIGH)
     end
   endtask
 
@@ -139,7 +139,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       req.wdata       = 0;
       req.afull_value = 28;
       finish_item(req);
-      `uvm_info(get_type_name(), $sformatf("Read-only: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Read-only: %s", req.sprint), UVM_HIGH)
     end
   endtask
 
@@ -156,7 +156,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       req.wdata       = $urandom_range(0, 32'hFFFFFFFF);
       req.afull_value = 28; // Set afull_value to a valid state
       finish_item(req);
-      `uvm_info(get_type_name(), $sformatf("Simultaneous: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Simultaneous: %s", req.sprint), UVM_HIGH)
     end
   endtask
 
@@ -173,7 +173,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
         wdata == 0;
         afull_value == 28;
       })
-      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.sprint), UVM_HIGH)
     end
     // De-assert hardware reset
     `uvm_do_with(req, {
@@ -184,7 +184,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       wdata == 0;
       afull_value == 28;
     })
-    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.print), UVM_HIGH)
+    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.sprint), UVM_HIGH)
     // Write operation for 10 cycles
     repeat (10) begin
       req = write_sequence_item::type_id::create("req");
@@ -196,7 +196,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       req.wdata       = $urandom_range(0, 32'hFFFFFFFF);
       req.afull_value = 28;
       finish_item(req);
-      `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.sprint), UVM_HIGH)
     end
     // Read operation for 5 cycles
     repeat (5) begin    
@@ -208,7 +208,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
         wdata == 0; // No data for read operation
         afull_value == 28; // Set afull_value to a valid state
       })
-      `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.sprint), UVM_HIGH)
     end
     // Write operation for 10 cycles
     repeat (10) begin
@@ -221,7 +221,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       req.wdata       = $urandom_range(0, 32'hFFFFFFFF);
       req.afull_value = 28;
       finish_item(req);
-      `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Write-only: %s", req.sprint), UVM_HIGH)
     end
     // Read operation for 5 cycles
     repeat (5) begin
@@ -233,7 +233,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
         wdata == 0; // No data for read operation
         afull_value == 28; // Set afull_value to a valid state
       })
-      `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.print), UVM_HIGH)
+      `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.sprint), UVM_HIGH)
     end
     endtask
 endclass
