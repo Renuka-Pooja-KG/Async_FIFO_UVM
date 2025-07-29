@@ -14,6 +14,7 @@ class scoreboard extends uvm_scoreboard;
     int read_count;
     int error_count;
     int fifo_depth = 32; // Assuming FIFO depth is 32
+    //int i;
 
     // Write domain FIFO state tracking
     int expected_wr_level;
@@ -41,8 +42,7 @@ class scoreboard extends uvm_scoreboard;
         super.build_phase(phase);
        //Initialise the FIFO memory
         expected_data_queue.delete();
-        int i;
-        for (i = 0; i < (1 << 5); i++) begin
+        for (int i = 0; i < (1 << 5); i++) begin
             expected_data_queue.push_back(0);
         end
         expected_data = 0;
