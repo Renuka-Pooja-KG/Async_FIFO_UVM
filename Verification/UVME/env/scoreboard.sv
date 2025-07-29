@@ -193,12 +193,12 @@ class scoreboard extends uvm_scoreboard;
             // end
             // Check FIFO state consistency
             if (tr.rdempty != expected_rdempty) begin
-                `uvm_error(get_type_name(), $sformatf("FIFO empty state mismatch: expected=%b, actual=%b expected_wr_level = %b", expected_rdempty, tr.rdempty, expected_wr_level = %b))
+                `uvm_error(get_type_name(), $sformatf("FIFO empty state mismatch: expected=%b, actual=%b expected_wr_level = %b", expected_rdempty, tr.rdempty, expected_wr_level))
                 error_count++;
             end
             // Check almost empty
             if (tr.rd_almost_empty != expected_rdalmost_empty) begin
-                `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b expected_wr_level = %b", expected_rdalmost_empty, tr.rd_almost_empty, expected_wr_level = %b))
+                `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b expected_wr_level = %b", expected_rdalmost_empty, tr.rd_almost_empty, expected_wr_level))
                 error_count++;
             end
             // // Check FIFO read count
