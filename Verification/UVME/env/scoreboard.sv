@@ -55,7 +55,7 @@ class scoreboard extends uvm_scoreboard;
         expected_overflow = 0;
         expected_fifo_read_count = 0; // Added for checking fifo_read_count
         expected_rdempty = 1;
-        expected_rdalmost_empty = 1;
+        expected_rdalmost_empty = 0;
         expected_underflow = 0;
 
     endfunction
@@ -93,6 +93,9 @@ class scoreboard extends uvm_scoreboard;
                 expected_wfull              = 0;
                 expected_rdempty            = 1;
                 expected_wr_almost_ful      = 0;
+                expected_rdalmost_empty     = 0;
+                expected_underflow          = 0;
+                expected_data               = 0;
                 expected_overflow           = 0;
                 expected_fifo_write_count   = 0; // Reset write count
                 expected_fifo_read_count    = 0; // Reset read count
