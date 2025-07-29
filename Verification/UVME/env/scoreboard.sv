@@ -115,14 +115,13 @@ class scoreboard extends uvm_scoreboard;
                     expected_rd_level--;
                     expected_fifo_write_count++; // Increment on successful write
                 end
-                `uvm_info(get_type_name(), $sformatf("Write: data=0x%h, wr_level=%d, wfull=%b", tr.wdata, expected_wr_level, expected_wfull), UVM_HIGH)
-            
-                // Update status flags only once after write/read logic
-                expected_wfull         = (expected_data_queue.size() == (1 << 5));
-                expected_wr_almost_ful = (expected_data_queue.size() >= tr.afull_value);
-                expected_overflow      = (expected_data_queue.size() >= (1 << 5)) && tr.write_enable;           
+                `uvm_info(get_type_name(), $sformatf("Write: data=0x%h, wr_level=%d, wfull=%b", tr.wdata, expected_wr_level, expected_wfull), UVM_HIGH)           
             end
 
+             // Update status flags only once after write/read logic
+                expected_wfull         = (expected_data_queue.size() == (1 << 5));
+                expected_wr_almost_ful = (expected_data_queue.size() >= tr.afull_value);
+                expected_overflow      = (expected_data_queue.size() >= (1 << 5)) && tr.write_enable;
           
 
             // Check for overflow
@@ -178,12 +177,11 @@ class scoreboard extends uvm_scoreboard;
                         `uvm_error(get_type_name(), "Read attempted but no data available")
                         error_count++;
                     end
+            end       
             // Update status flags only once after read logic
             expected_rdempty         = (expected_data_queue.size() == 0);
             expected_rdalmost_empty  = (expected_data_queue.size() <= tr.aempty_value);
-            expected_underflow       = (expected_data_queue.size() == 0) && tr.read_enable;
-
-            end           
+            expected_underflow       = (expected_data_queue.size() == 0) && tr.read_enable;    
 
             // Check for underflow
             if (tr.underflow != expected_underflow) begin
