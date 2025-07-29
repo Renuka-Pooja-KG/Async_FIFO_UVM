@@ -73,6 +73,30 @@ class scoreboard extends uvm_scoreboard;
             write_fifo.get(tr);
 
             `uvm_info(get_type_name(), $sformatf("Check Write Transaction task: tr = %s", tr.sprint), UVM_LOW)
+
+                // Check for any active reset
+            if (!tr.hw_rst_n || tr.sw_rst || tr.mem_rst) begin
+                `uvm_info(get_type_name(), "Reset active — clearing scoreboard state", UVM_MEDIUM)
+
+                // Clear all expected values and queues
+                expected_data_queue.delete();
+                expected_wr_level           = 0;
+                expected_rd_level           = 0;
+                expected_wfull              = 0;
+                expected_rdempty            = 1;
+                expected_wr_almost_ful      = 0;
+                expected_rdalmost_empty     = 1;
+                expected_overflow           = 0;
+                expected_fifo_write_count   = 0;
+                write_count                 = 0;
+                last_write_enable           = 0;
+                last_wfull                  = 0;
+                last_rdempty                = 1;
+                last_wr_level               = 0;
+
+                continue;
+            end
+
             // Update last_write_enable and last_wfull
             last_write_enable = tr.write_enable;
             last_wfull = tr.wfull;
@@ -87,7 +111,7 @@ class scoreboard extends uvm_scoreboard;
             expected_data_queue.push_back(tr.wdata);
             write_count++;
             //expected_fifo_write_count++; // Increment on successful write
-            
+
             // No change to expected_wr_level or expected_rd_level
             end else if (tr.write_enable && !tr.wfull) begin
                 expected_data_queue.push_back(tr.wdata);
