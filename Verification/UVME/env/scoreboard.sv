@@ -14,6 +14,7 @@ class scoreboard extends uvm_scoreboard;
     int read_count;
     int error_count;
     int fifo_depth = 32; // Assuming FIFO depth is 32
+    bit reset_active = 0; // Flag to track reset state
     //int i;
 
     // Write domain FIFO state tracking
@@ -56,9 +57,6 @@ class scoreboard extends uvm_scoreboard;
         expected_rdempty = 1;
         expected_rdalmost_empty = 1;
         expected_underflow = 0;
-        write_count = 0;
-        read_count = 0;
-        error_count = 0;
 
     endfunction
 
@@ -87,6 +85,7 @@ class scoreboard extends uvm_scoreboard;
             if (!tr.hw_rst_n || tr.sw_rst || tr.mem_rst) begin
                 `uvm_info(get_type_name(), "Reset active — clearing scoreboard state", UVM_MEDIUM)
 
+                reset_active = 1;
                 // Clear all expected values and queues
                 expected_data_queue.delete();
                 expected_wr_level           = 0;
@@ -99,6 +98,9 @@ class scoreboard extends uvm_scoreboard;
                 expected_fifo_read_count    = 0; // Reset read count
             
                 continue;
+
+            end else begin
+               reset_active = 0;
             end
 
             //Write operation logic
@@ -153,7 +155,7 @@ class scoreboard extends uvm_scoreboard;
             read_fifo.get(tr);
             `uvm_info(get_type_name(), $sformatf("Check Read Transaction task: tr = %s", tr.sprint), UVM_LOW)
 
-            if (tr.read_enable && !tr.rdempty && !tr.sw_rst) begin
+            if (tr.read_enable && !tr.rdempty && !reset_active) begin
                 if (expected_data_queue.size() > 0) begin
                     expected_data = expected_data_queue.pop_front();
                     read_count++;
