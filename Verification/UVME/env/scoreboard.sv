@@ -107,18 +107,20 @@ class scoreboard extends uvm_scoreboard;
             if (tr.write_enable && (expected_data_queue.size() < fifo_depth)) begin
                 expected_data_queue.push_back(tr.wdata);
                 write_count++;
-            if (expected_wr_level < fifo_depth) begin
-                expected_wr_level++;
-                expected_rd_level--;
-                expected_fifo_write_count++; // Increment on successful write
-            end
-            `uvm_info(get_type_name(), $sformatf("Write: data=0x%h, wr_level=%d, wfull=%b", tr.wdata, expected_wr_level, expected_wfull), UVM_HIGH)
+                if (expected_wr_level < fifo_depth) begin
+                    expected_wr_level++;
+                    expected_rd_level--;
+                    expected_fifo_write_count++; // Increment on successful write
+                end
+                `uvm_info(get_type_name(), $sformatf("Write: data=0x%h, wr_level=%d, wfull=%b", tr.wdata, expected_wr_level, expected_wfull), UVM_HIGH)
+            
+                // Update status flags only once after write/read logic
+                expected_wfull         = (expected_data_queue.size() == (1 << 5));
+                expected_wr_almost_ful = (expected_data_queue.size() >= tr.afull_value);
+                expected_overflow      = (expected_data_queue.size() >= (1 << 5)) && tr.write_enable;           
             end
 
-            // Update status flags only once after write/read logic
-            expected_wfull         = (expected_data_queue.size() == (1 << 5));
-            expected_wr_almost_ful = (expected_data_queue.size() >= tr.afull_value);
-            expected_overflow      = (expected_data_queue.size() >= (1 << 5)) && tr.write_enable;
+          
 
             // Check for overflow
             if (tr.overflow != expected_overflow) begin
@@ -155,7 +157,7 @@ class scoreboard extends uvm_scoreboard;
             read_fifo.get(tr);
             `uvm_info(get_type_name(), $sformatf("Check Read Transaction task: tr = %s", tr.sprint), UVM_LOW)
 
-            if (tr.read_enable && !tr.rdempty && !reset_active) begin
+            if (tr.read_enable && !reset_active) begin
                 if (expected_data_queue.size() > 0) begin
                     expected_data = expected_data_queue.pop_front();
                     read_count++;
@@ -173,12 +175,12 @@ class scoreboard extends uvm_scoreboard;
                         `uvm_error(get_type_name(), "Read attempted but no data available")
                         error_count++;
                     end
-            end
-
             // Update status flags only once after read logic
             expected_rdempty         = (expected_data_queue.size() == 0);
             expected_rdalmost_empty  = (expected_data_queue.size() <= tr.aempty_value);
             expected_underflow       = (expected_data_queue.size() == 0) && tr.read_enable;
+
+            end           
 
             // Check for underflow
             if (tr.underflow != expected_underflow) begin
