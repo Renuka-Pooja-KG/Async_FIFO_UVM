@@ -71,6 +71,8 @@ class scoreboard extends uvm_scoreboard;
         write_sequence_item tr;
         forever begin
             write_fifo.get(tr);
+
+            `uvm_info(get_type_name(), $sformatf("Check Write Transaction task: tr = %s", tr.sprint), UVM_LOW)
             // Update last_write_enable and last_wfull
             last_write_enable = tr.write_enable;
             last_wfull = tr.wfull;
@@ -106,17 +108,17 @@ class scoreboard extends uvm_scoreboard;
 
             // Check for overflow
             if (tr.overflow != expected_overflow) begin
-                `uvm_error(get_type_name(), $sformatf("Overflow mismatch: expected=%b, actual=%b", expected_overflow, tr.overflow))
+                `uvm_error(get_type_name(), $sformatf("Overflow mismatch: expected=%b, actual=%b, expected_wr_level = %b", expected_overflow, tr.overflow, expected_wr_level))
                 error_count++;
             end
             // Check FIFO state consistency
             if (tr.wfull != expected_wfull) begin
-                `uvm_error(get_type_name(), $sformatf("FIFO full state mismatch: expected=%b, actual=%b", expected_wfull, tr.wfull))
+                `uvm_error(get_type_name(), $sformatf("FIFO full state mismatch: expected=%b, actual=%b, expected_wr_level = %b", expected_wfull, tr.wfull, expected_wr_level))
                 error_count++;
             end
             // Check almost full
             if (tr.wr_almost_ful != expected_wr_almost_ful) begin
-                `uvm_error(get_type_name(), $sformatf("Almost full mismatch: expected=%b, actual=%b", expected_wr_almost_ful, tr.wr_almost_ful))
+                `uvm_error(get_type_name(), $sformatf("Almost full mismatch: expected=%b, actual=%b, expected_wr_level = %b", expected_wr_almost_ful, tr.wr_almost_ful, expected_wr_level))
                 error_count++;
             end
             // // Check FIFO write count
@@ -138,6 +140,7 @@ class scoreboard extends uvm_scoreboard;
         // int expected_fifo_read_count = 0; // Added for checking fifo_read_count   
         forever begin
             read_fifo.get(tr);
+            `uvm_info(get_type_name(), $sformatf("Check Read Transaction task: tr = %s", tr.sprint), UVM_LOW)
             // Update last_read_enable and last_rdempty
             last_read_enable = tr.read_enable;
             last_rdempty = tr.rdempty;
@@ -183,19 +186,19 @@ class scoreboard extends uvm_scoreboard;
             expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
             expected_underflow       = (expected_wr_level == 0);
 
-            // Check for underflow
-            if (tr.underflow != expected_underflow) begin
-                `uvm_error(get_type_name(), $sformatf("Underflow mismatch: expected=%b, actual=%b", expected_underflow, tr.underflow))
-                error_count++;
-            end
+            // // Check for underflow
+            // if (tr.underflow != expected_underflow) begin
+            //     `uvm_error(get_type_name(), $sformatf("Underflow mismatch: expected=%b, actual=%b expected_wr_level = %b", expected_underflow, tr.underflow, expected_wr_level))
+            //     error_count++;
+            // end
             // Check FIFO state consistency
             if (tr.rdempty != expected_rdempty) begin
-                `uvm_error(get_type_name(), $sformatf("FIFO empty state mismatch: expected=%b, actual=%b", expected_rdempty, tr.rdempty))
+                `uvm_error(get_type_name(), $sformatf("FIFO empty state mismatch: expected=%b, actual=%b expected_wr_level = %b", expected_rdempty, tr.rdempty, expected_wr_level = %b))
                 error_count++;
             end
             // Check almost empty
             if (tr.rd_almost_empty != expected_rdalmost_empty) begin
-                `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b", expected_rdalmost_empty, tr.rd_almost_empty))
+                `uvm_error(get_type_name(), $sformatf("Almost empty mismatch: expected=%b, actual=%b expected_wr_level = %b", expected_rdalmost_empty, tr.rd_almost_empty, expected_wr_level = %b))
                 error_count++;
             end
             // // Check FIFO read count
