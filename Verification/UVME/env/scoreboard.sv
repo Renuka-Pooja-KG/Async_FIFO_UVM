@@ -82,11 +82,12 @@ class scoreboard extends uvm_scoreboard;
                 `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (write)", UVM_MEDIUM)
             if (expected_data_queue.size() > 0) begin
                 expected_data_queue.pop_front();
-                expected_fifo_read_count++; // Increment on successful read
+               // expected_fifo_read_count++; // Increment on successful read
             end
             expected_data_queue.push_back(tr.wdata);
             write_count++;
-            expected_fifo_write_count++; // Increment on successful write
+            //expected_fifo_write_count++; // Increment on successful write
+            
             // No change to expected_wr_level or expected_rd_level
             end else if (tr.write_enable && !tr.wfull) begin
                 expected_data_queue.push_back(tr.wdata);
@@ -104,7 +105,7 @@ class scoreboard extends uvm_scoreboard;
             expected_rdempty       = (expected_wr_level == 0);
             expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
             //expected_rdalmost_empty= (expected_wr_level <= tr.aempty_value);
-            expected_overflow      = (expected_wr_level >= (1 << 5));
+            expected_overflow      = (expected_wr_level >= (1 << 5)) && tr.write_enable;
 
             // Check for overflow
             if (tr.overflow != expected_overflow) begin
@@ -184,7 +185,7 @@ class scoreboard extends uvm_scoreboard;
             expected_wfull           = (expected_wr_level == (1 << 5));
             expected_rdempty         = (expected_wr_level == 0);
             expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
-            expected_underflow       = (expected_wr_level == 0);
+            expected_underflow       = (expected_wr_level == 0) && tr.read_enable;
 
             // Check for underflow
             if (tr.underflow != expected_underflow) begin
