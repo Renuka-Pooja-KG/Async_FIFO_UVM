@@ -81,12 +81,4 @@ module async_fifo_top_tb;
     run_test("base_test");
   end
 
-  always @(posedge wclk) begin
-    $monitor("Time=%0t From TOP MODULE: wr_if: wdata=%h write_enable=%b afull_value=%d hw_rst_n=%b", $time, wr_if.wdata, wr_if.write_enable, wr_if.afull_value, wr_if.hw_rst_n);
-  end
-
-  always @(posedge rclk) begin
-    $monitor("Time=%0t From TOP MODULE: rd_if: read_enable=%b aempty_value=%d", $time, rd_if.read_enable, rd_if.aempty_value);
-  end
-
 endmodule

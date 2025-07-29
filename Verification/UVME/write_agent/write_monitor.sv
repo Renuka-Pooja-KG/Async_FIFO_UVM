@@ -43,14 +43,14 @@ class write_monitor extends uvm_monitor;
       tr.fifo_write_count = wr_vif.write_monitor_cb.fifo_write_count;
       tr.wr_level       = wr_vif.write_monitor_cb.wr_level;
       tr.overflow       = wr_vif.write_monitor_cb.overflow;
-        // Print all wr_vif signals for debug
-      $monitor("Time=%0t wr_vif: hw_rst_n=%b mem_rst=%b sw_rst=%b write_enable=%b wdata=%h afull_value=%d wfull=%b wr_almost_ful=%b fifo_write_count=%d wr_level=%d overflow=%b",
-        $time, wr_vif.hw_rst_n, wr_vif.mem_rst, wr_vif.write_monitor_cb.sw_rst, wr_vif.write_monitor_cb.write_enable,
-        wr_vif.write_monitor_cb.wdata, wr_vif.write_monitor_cb.afull_value, wr_vif.write_monitor_cb.wfull,
-        wr_vif.write_monitor_cb.wr_almost_ful, wr_vif.write_monitor_cb.fifo_write_count,
-        wr_vif.write_monitor_cb.wr_level, wr_vif.write_monitor_cb.overflow);
+      //   // Print all wr_vif signals for debug
+      // $monitor("Time=%0t wr_vif: hw_rst_n=%b mem_rst=%b sw_rst=%b write_enable=%b wdata=%h afull_value=%d wfull=%b wr_almost_ful=%b fifo_write_count=%d wr_level=%d overflow=%b",
+      //   $time, wr_vif.hw_rst_n, wr_vif.mem_rst, wr_vif.write_monitor_cb.sw_rst, wr_vif.write_monitor_cb.write_enable,
+      //   wr_vif.write_monitor_cb.wdata, wr_vif.write_monitor_cb.afull_value, wr_vif.write_monitor_cb.wfull,
+      //   wr_vif.write_monitor_cb.wr_almost_ful, wr_vif.write_monitor_cb.fifo_write_count,
+      //   wr_vif.write_monitor_cb.wr_level, wr_vif.write_monitor_cb.overflow);
 
-      `uvm_info(get_type_name(), $sformatf("Captured write transaction in write_monitor: %s", tr.convert2string()), UVM_LOW)
+      `uvm_info(get_type_name(), $sformatf("Captured write transaction in write_monitor: %s", tr.print), UVM_LOW)
       write_analysis_port.write(tr);
     end
   endtask

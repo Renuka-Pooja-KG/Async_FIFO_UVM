@@ -58,7 +58,7 @@ class scoreboard extends uvm_scoreboard;
 
   // Analysis implementation for write transactions
   function void write_wr(write_sequence_item tr);
-  `uvm_info(get_type_name(), $sformatf("Received write transaction: %s", tr.convert2string()), UVM_LOW)
+  `uvm_info(get_type_name(), $sformatf("Received write transaction: %s", tr.print), UVM_LOW)
     if (tr == null) begin
       `uvm_error(get_type_name(), "Received null write transaction")
       return;
@@ -68,7 +68,7 @@ class scoreboard extends uvm_scoreboard;
 
   // Analysis implementation for read transactions
   function void write_rd(read_sequence_item tr);
-  `uvm_info(get_type_name(), $sformatf("Received read transaction: %s", tr.convert2string()), UVM_LOW)
+  `uvm_info(get_type_name(), $sformatf("Received read transaction: %s", tr.print), UVM_LOW)
     if (tr == null) begin
       `uvm_error(get_type_name(), "Received null read transaction")
       return;
@@ -95,7 +95,7 @@ class scoreboard extends uvm_scoreboard;
       end
       tr = write_queue.pop_front();
 
-      `uvm_info(get_type_name(), $sformatf("Checking write transaction in Scoreboard: %s", tr.convert2string()), UVM_LOW)
+      `uvm_info(get_type_name(), $sformatf("Checking write transaction in Scoreboard: %s", tr.print), UVM_LOW)
 
 
       // // Clear expected_data_queue on reset (mem_rst, hw_rst_n, or sw_rst)
@@ -105,7 +105,7 @@ class scoreboard extends uvm_scoreboard;
       // end
 
       // // Update last_write_enable and last_wfull
-      // `uvm_info(get_type_name(), $sformatf("Checking write transaction: %s", tr.convert2string()), UVM_LOW)
+      // `uvm_info(get_type_name(), $sformatf("Checking write transaction: %s", tr.print), UVM_LOW)
       // last_write_enable = tr.write_enable;
       // last_wfull = tr.wfull;
       // last_wr_level = tr.wr_level;
@@ -165,10 +165,10 @@ class scoreboard extends uvm_scoreboard;
       end
       tr = read_queue.pop_front();
 
-      `uvm_info(get_type_name(), $sformatf("Checking read transaction in Scoreboard: %s", tr.convert2string()), UVM_LOW)
+      `uvm_info(get_type_name(), $sformatf("Checking read transaction in Scoreboard: %s", tr.print), UVM_LOW)
 
       // // Update last_read_enable and last_rdempty
-      // `uvm_info(get_type_name(), $sformatf("Checking read transaction: %s", tr.convert2string()), UVM_LOW)
+      // `uvm_info(get_type_name(), $sformatf("Checking read transaction: %s", tr.print), UVM_LOW)
       // last_read_enable = tr.read_enable;
       // last_rdempty = tr.rdempty;
       
