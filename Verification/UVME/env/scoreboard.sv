@@ -9,27 +9,25 @@ class scoreboard extends uvm_scoreboard;
 
     // Data integrity checking
     bit [31:0] expected_data_queue[$];
-    int write_count = 0;
-    int read_count = 0;
-    int error_count = 0;
+    bit [31:0] expected_data;
+    int write_count;
+    int read_count;
+    int error_count;
+    int fifo_depth = 32; // Assuming FIFO depth is 32
 
-    // FIFO state tracking
-    int expected_wr_level = 0;
-    int expected_rd_level = (1 << 5); // FIFO depth
-    int expected_fifo_write_count = 0; // Added for checking fifo_write_count
-    int expected_fifo_read_count = 0; // Added for checking fifo_read_count   
-    bit expected_wfull = 0;
-    bit expected_rdempty = 1;
-    bit expected_wr_almost_ful = 0;
-    bit expected_rdalmost_empty = 1;
-    bit expected_overflow = 0;
-    bit expected_underflow = 0;
+    // Write domain FIFO state tracking
+    int expected_wr_level;
+    int expected_rd_level; // FIFO depth
+    int expected_fifo_write_count; // Added for checking fifo_write_count
+    bit expected_wfull;
+    bit expected_wr_almost_ful;
+    bit expected_overflow;
 
-    bit last_read_enable;
-    bit last_rdempty;
-    bit last_write_enable;
-    bit last_wfull;
-    int last_wr_level;
+    // Read domain FIFO state tracking
+    int expected_fifo_read_count; // Added for checking fifo_read_count   
+    bit expected_rdempty;
+    bit expected_rdalmost_empty;
+    bit expected_underflow;
 
     function new(string name = "scoreboard", uvm_component parent = null);
         super.new(name, parent);
@@ -41,16 +39,27 @@ class scoreboard extends uvm_scoreboard;
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
+       //Initialise the FIFO memory
+        expected_data_queue.delete();
+        int i;
+        for (i = 0; i < (1 << 5); i++) begin
+            expected_data_queue.push_back(0);
+        end
+        expected_data = 0;
         expected_wr_level = 0;
         expected_rd_level = (1 << 5); // FIFO depth
-        expected_fifo_write_count = 0; // Initialize
-        expected_fifo_read_count = 0; // Initialize 
+        expected_fifo_write_count = 0; // Added for checking fifo_write_count
         expected_wfull = 0;
-        expected_rdempty = 1;
         expected_wr_almost_ful = 0;
-        expected_rdalmost_empty = 1;
         expected_overflow = 0;
+        expected_fifo_read_count = 0; // Added for checking fifo_read_count
+        expected_rdempty = 1;
+        expected_rdalmost_empty = 1;
         expected_underflow = 0;
+        write_count = 0;
+        read_count = 0;
+        error_count = 0;
+
     endfunction
 
     function void connect_phase(uvm_phase phase);
@@ -81,42 +90,22 @@ class scoreboard extends uvm_scoreboard;
                 // Clear all expected values and queues
                 expected_data_queue.delete();
                 expected_wr_level           = 0;
-                expected_rd_level           = 32; // Reset to FIFO depth
+                expected_rd_level           = (1 << 5); // Reset to FIFO depth
                 expected_wfull              = 0;
                 expected_rdempty            = 1;
                 expected_wr_almost_ful      = 0;
-                expected_rdalmost_empty     = 1;
                 expected_overflow           = 0;
-                expected_fifo_write_count   = 0;
-                write_count                 = 0;
-                last_write_enable           = 0;
-                last_wfull                  = 0;
-                last_rdempty                = 1;
-                last_wr_level               = 0;
-
+                expected_fifo_write_count   = 0; // Reset write count
+                expected_fifo_read_count    = 0; // Reset read count
+            
                 continue;
             end
 
-            // Update last_write_enable and last_wfull
-            last_write_enable = tr.write_enable;
-            last_wfull = tr.wfull;
-            last_wr_level = tr.wr_level;
-            // Simultaneous write and read: do not update levels or queue
-            if (tr.write_enable && last_read_enable && !tr.wfull && !last_rdempty) begin
-                `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (write)", UVM_MEDIUM)
-            if (expected_data_queue.size() > 0) begin
-                expected_data_queue.pop_front();
-               // expected_fifo_read_count++; // Increment on successful read
-            end
-            expected_data_queue.push_back(tr.wdata);
-            write_count++;
-            //expected_fifo_write_count++; // Increment on successful write
-
-            // No change to expected_wr_level or expected_rd_level
-            end else if (tr.write_enable && !tr.wfull) begin
+            //Write operation logic
+            if (tr.write_enable && (expected_data_queue.size() < fifo_depth)) begin
                 expected_data_queue.push_back(tr.wdata);
                 write_count++;
-            if (expected_wr_level < (1 << 5)) begin
+            if (expected_wr_level < fifo_depth) begin
                 expected_wr_level++;
                 expected_rd_level--;
                 expected_fifo_write_count++; // Increment on successful write
@@ -125,11 +114,9 @@ class scoreboard extends uvm_scoreboard;
             end
 
             // Update status flags only once after write/read logic
-            expected_wfull         = (expected_wr_level == (1 << 5));
-            expected_rdempty       = (expected_wr_level == 0);
-            expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
-            //expected_rdalmost_empty= (expected_wr_level <= tr.aempty_value);
-            expected_overflow      = (expected_wr_level >= (1 << 5)) && tr.write_enable;
+            expected_wfull         = (expected_data_queue.size() == (1 << 5));
+            expected_wr_almost_ful = (expected_data_queue.size() >= tr.afull_value);
+            expected_overflow      = (expected_data_queue.size() >= (1 << 5)) && tr.write_enable;
 
             // Check for overflow
             if (tr.overflow != expected_overflow) begin
@@ -161,55 +148,35 @@ class scoreboard extends uvm_scoreboard;
 
     task check_read_transactions();
         read_sequence_item tr;
-        bit [31:0] expected_data;
         // int expected_fifo_read_count = 0; // Added for checking fifo_read_count   
         forever begin
             read_fifo.get(tr);
             `uvm_info(get_type_name(), $sformatf("Check Read Transaction task: tr = %s", tr.sprint), UVM_LOW)
-            // Update last_read_enable and last_rdempty
-            last_read_enable = tr.read_enable;
-            last_rdempty = tr.rdempty;
 
-            // Simultaneous write and read: do not update levels or queue
-            if (last_write_enable && tr.read_enable && !last_wfull && !tr.rdempty) begin
-                `uvm_info(get_type_name(), "Simultaneous write and read: pop front, push back (read)", UVM_MEDIUM)
+            if (tr.read_enable && !tr.rdempty && !tr.sw_rst) begin
                 if (expected_data_queue.size() > 0) begin
-                    bit [31:0] expected_data = expected_data_queue.pop_front();
+                    expected_data = expected_data_queue.pop_front();
                     read_count++;
                     if (tr.read_data !== expected_data) begin
                         `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, tr.read_data))
                         error_count++;
                     end
-                end else begin
-                    `uvm_error(get_type_name(), "Read attempted but no data available")
-                    error_count++;
-                end
-                // No change to expected_wr_level or expected_rd_level
-            end else if (tr.read_enable && !tr.rdempty) begin
-            if (expected_data_queue.size() > 0) begin
-                expected_data = expected_data_queue.pop_front();
-                read_count++;
-                if (tr.read_data !== expected_data) begin
-                    `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, tr.read_data))
-                    error_count++;
-                end
-                `uvm_info(get_type_name(), $sformatf("Read: data=0x%h (correct)", expected_data), UVM_HIGH)
-                if (expected_wr_level > 0) begin
-                    expected_wr_level--;
-                    expected_rd_level++;
-                    expected_fifo_read_count++; // Increment on successful read
-                end
-                end else begin
-                    `uvm_error(get_type_name(), "Read attempted but no data available")
-                    error_count++;
-                end
+                    `uvm_info(get_type_name(), $sformatf("Read: data=0x%h (correct)", expected_data), UVM_HIGH)
+                    if (expected_wr_level > 0) begin
+                        expected_wr_level--;
+                        expected_rd_level++;
+                        expected_fifo_read_count++; // Increment on successful read
+                    end
+                    end else begin
+                        `uvm_error(get_type_name(), "Read attempted but no data available")
+                        error_count++;
+                    end
             end
 
             // Update status flags only once after read logic
-            expected_wfull           = (expected_wr_level == (1 << 5));
-            expected_rdempty         = (expected_wr_level == 0);
-            expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
-            expected_underflow       = (expected_wr_level == 0) && tr.read_enable;
+            expected_rdempty         = (expected_data_queue.size() == 0);
+            expected_rdalmost_empty  = (expected_data_queue.size() <= tr.aempty_value);
+            expected_underflow       = (expected_data_queue.size() == 0) && tr.read_enable;
 
             // Check for underflow
             if (tr.underflow != expected_underflow) begin
