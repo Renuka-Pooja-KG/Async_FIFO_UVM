@@ -30,14 +30,14 @@ module async_fifo_top_tb;
     .DATA_WIDTH(32),
     .ADDRESS_WIDTH(5),
     //.DEPTH(32),
-    .SOFT_RESET(0),
+    .SOFT_RESET(3),
     .POWER_SAVE (1),
     .STICKY_ERROR(0),
-    .RESET_MEM(0),
+    .RESET_MEM(1),
     .PIPE_WRITE(0),
-    .DEBUG_ENABLE(0),
+    .DEBUG_ENABLE(1),
     .PIPE_READ(0),
-    .SYNC_STAGE(0)
+    .SYNC_STAGE(2)
   ) dut (
     // Write side
     .wclk(wclk),
