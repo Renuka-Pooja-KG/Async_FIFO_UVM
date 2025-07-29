@@ -81,7 +81,7 @@ class scoreboard extends uvm_scoreboard;
                 // Clear all expected values and queues
                 expected_data_queue.delete();
                 expected_wr_level           = 0;
-                expected_rd_level           = 0;
+                expected_rd_level           = 32; // Reset to FIFO depth
                 expected_wfull              = 0;
                 expected_rdempty            = 1;
                 expected_wr_almost_ful      = 0;
