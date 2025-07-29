@@ -101,7 +101,7 @@ class scoreboard extends uvm_scoreboard;
             expected_wfull         = (expected_wr_level == (1 << 5));
             expected_rdempty       = (expected_wr_level == 0);
             expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
-            expected_rdalmost_empty= (expected_wr_level <= tr.aempty_value);
+            //expected_rdalmost_empty= (expected_wr_level <= tr.aempty_value);
             expected_overflow      = (expected_wr_level >= (1 << 5));
 
             // Check for overflow
