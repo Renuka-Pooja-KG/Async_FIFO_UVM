@@ -20,7 +20,7 @@ interface rd_interface (
   logic [5:0] rd_level;
 
   // Read domain clocking block (for driver)
-  clocking read_driver_cb @(posedge rclk);
+  clocking read_driver_cb @(negedge rclk);
     default input #1step output #1step;
    
     //Synchronous reset signal

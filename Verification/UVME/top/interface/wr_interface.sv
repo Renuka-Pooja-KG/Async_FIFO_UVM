@@ -18,7 +18,7 @@ interface wr_interface (
   logic [5:0] wr_level;
 
   // Write domain clocking block (for driver)
-  clocking write_driver_cb @(posedge wclk);
+  clocking write_driver_cb @(negedge wclk);
     default input #1step output #1step;
     // Synchronous signals only
     output wdata, write_enable, afull_value, sw_rst;
