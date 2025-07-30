@@ -129,7 +129,7 @@ class scoreboard extends uvm_scoreboard;
 
         // Check for any active reset
         if (!write_tr.hw_rst_n || write_tr.sw_rst || write_tr.mem_rst) begin
-            `uvm_info(get_type_name(), "Reset active — clearing scoreboard state", UVM_MEDIUM)
+            `uvm_info(get_type_name(), "Reset active: clearing scoreboard state", UVM_MEDIUM)
             reset_active = 1;
             // Clear all expected values and queues
             expected_data_queue.delete();
@@ -150,11 +150,6 @@ class scoreboard extends uvm_scoreboard;
         end else begin
             reset_active = 0;
         end
-
-        // Store initial state
-        int initial_wr_level = expected_wr_level;
-        int initial_rd_level = expected_rd_level;
-        int initial_queue_size = expected_data_queue.size();
 
         // Process read operation first (if enabled and data available)
         if (read_tr.read_enable && !reset_active && expected_data_queue.size() > 0) begin
