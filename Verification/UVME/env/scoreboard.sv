@@ -165,12 +165,18 @@ class scoreboard extends uvm_scoreboard;
         end
 
         // Process write operation (if enabled and space available)
-        if (write_tr.write_enable && !expected_wfull) begin
-            expected_data_queue.push_back(write_tr.wdata);
-            write_count++;
-            expected_fifo_write_count++;
-            // Increment write level (filled locations)
-            expected_wr_level++;
+        if (write_tr.write_enable) begin
+            if (!expected_wfull) begin
+                // Normal write when not full
+                expected_data_queue.push_back(write_tr.wdata);
+                write_count++;
+                expected_fifo_write_count++;
+                // Increment write level (filled locations)
+                expected_wr_level++;
+            end else begin
+                // Write attempted when full - this should trigger overflow
+                `uvm_info(get_type_name(), $sformatf("Write attempted when full - overflow expected: data=0x%h, wr_level=%d", write_tr.wdata, expected_wr_level), UVM_HIGH)
+            end
         end
 
         // Update read level based on write level
@@ -183,7 +189,7 @@ class scoreboard extends uvm_scoreboard;
         // Update status flags
         expected_wfull         = (expected_wr_level == fifo_depth);
         expected_wr_almost_ful = (expected_wr_level >= write_tr.afull_value);
-        expected_overflow      = (expected_wr_level >= fifo_depth) && write_tr.write_enable;
+        expected_overflow      = (expected_wr_level == fifo_depth) && write_tr.write_enable;
         expected_rdempty       = (expected_wr_level == 0);
         expected_rdalmost_empty = (expected_wr_level <= read_tr.aempty_value);
         expected_underflow     = (expected_wr_level == 0) && read_tr.read_enable;
@@ -279,20 +285,26 @@ class scoreboard extends uvm_scoreboard;
         end
 
         // Write operation logic
-        if (write_tr.write_enable && !expected_wfull) begin
-            expected_data_queue.push_back(write_tr.wdata);
-            write_count++;
-            expected_wr_level++; // Increment write level (filled locations)
-            expected_rd_level = fifo_depth - expected_wr_level; // Update read level
-            expected_fifo_write_count++; // Increment on successful write
-            
-            `uvm_info(get_type_name(), $sformatf("After write: data=0x%h, wr_level=%d, rd_level=%d, wfull=%b", write_tr.wdata, expected_wr_level, expected_rd_level, expected_wfull), UVM_HIGH)           
+        if (write_tr.write_enable) begin
+            if (!expected_wfull) begin
+                // Normal write when not full
+                expected_data_queue.push_back(write_tr.wdata);
+                write_count++;
+                expected_wr_level++; // Increment write level (filled locations)
+                expected_rd_level = fifo_depth - expected_wr_level; // Update read level
+                expected_fifo_write_count++; // Increment on successful write
+                
+                `uvm_info(get_type_name(), $sformatf("After write: data=0x%h, wr_level=%d, rd_level=%d, wfull=%b", write_tr.wdata, expected_wr_level, expected_rd_level, expected_wfull), UVM_HIGH)
+            end else begin
+                // Write attempted when full - this should trigger overflow
+                `uvm_info(get_type_name(), $sformatf("Write attempted when full - overflow expected: data=0x%h, wr_level=%d", write_tr.wdata, expected_wr_level), UVM_HIGH)
+            end
         end
 
         // Update status flags
         expected_wfull         = (expected_wr_level == fifo_depth);
         expected_wr_almost_ful = (expected_wr_level >= write_tr.afull_value);
-        expected_overflow      = (expected_wr_level >= fifo_depth) && write_tr.write_enable;
+        expected_overflow      = (expected_wr_level == fifo_depth) && write_tr.write_enable;
 
         // Check write transaction
         if (write_tr.write_enable) begin
