@@ -41,23 +41,21 @@ class scoreboard extends uvm_scoreboard;
 
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
-       //Initialise the FIFO memory
+        // Initialize the FIFO memory - START WITH EMPTY QUEUE
         expected_data_queue.delete();
-        for (int i = 0; i < (1 << 5); i++) begin
-            expected_data_queue.push_back(0);
-        end
+        // Don't pre-populate with zeros - start with empty FIFO
         expected_data = 0;
         expected_wr_level = 0;
-        expected_rd_level = (1 << 5); // FIFO depth
-        expected_fifo_write_count = 0; // Added for checking fifo_write_count
+        expected_rd_level = fifo_depth; // Start with fifo_depth since rd_level = empty locations
+        expected_fifo_write_count = 0;
         expected_wfull = 0;
         expected_wr_almost_ful = 0;
         expected_overflow = 0;
-        expected_fifo_read_count = 0; // Added for checking fifo_read_count
-        expected_rdempty = 1;
+        expected_fifo_read_count = 0;
+        expected_rdempty = 1; // FIFO starts empty
         expected_rdalmost_empty = 0;
         expected_underflow = 0;
-
+        reset_active = 0;
     endfunction
 
     function void connect_phase(uvm_phase phase);
@@ -89,7 +87,7 @@ class scoreboard extends uvm_scoreboard;
                 // Clear all expected values and queues
                 expected_data_queue.delete();
                 expected_wr_level           = 0;
-                expected_rd_level           = (1 << 5); // Reset to FIFO depth
+                expected_rd_level           = fifo_depth; // Reset to fifo_depth since rd_level = empty locations
                 expected_wfull              = 0;
                 expected_rdempty            = 1;
                 expected_wr_almost_ful      = 0;
@@ -107,19 +105,19 @@ class scoreboard extends uvm_scoreboard;
             end
 
             //Write operation logic
-            if (tr.write_enable && (expected_data_queue.size() < fifo_depth)) begin
+            if (tr.write_enable && !expected_wfull) begin
                 expected_data_queue.push_back(tr.wdata);
                 write_count++;
-                if (expected_wr_level < fifo_depth) begin
-                    expected_wr_level++;
-                    expected_rd_level--;
-                    expected_fifo_write_count++; // Increment on successful write
-                end
+                expected_wr_level++;
+                expected_rd_level = fifo_depth - expected_wr_level; // Update read level
+                expected_fifo_write_count++; // Increment on successful write
+                
                 `uvm_info(get_type_name(), $sformatf("Write: data=0x%h, wr_level=%d, wfull=%b", tr.wdata, expected_wr_level, expected_wfull), UVM_HIGH)           
+                
                 // Update status flags only once after write/read logic
-                    expected_wfull         = (expected_data_queue.size() == (1 << 5));
-                    expected_wr_almost_ful = (expected_data_queue.size() >= tr.afull_value);
-                    expected_overflow      = (expected_data_queue.size() >= (1 << 5)) && tr.write_enable;
+                expected_wfull         = (expected_wr_level == fifo_depth);
+                expected_wr_almost_ful = (expected_wr_level >= tr.afull_value);
+                expected_overflow      = (expected_wr_level >= fifo_depth) && tr.write_enable;
             
 
                 // Check for overflow
@@ -172,20 +170,24 @@ class scoreboard extends uvm_scoreboard;
                         error_count++;
                     end
                     `uvm_info(get_type_name(), $sformatf("Read: data=0x%h (correct)", expected_data), UVM_HIGH)
-                    if (expected_wr_level > 0) begin
-                        expected_wr_level--;
-                        expected_rd_level++;
-                        expected_fifo_read_count++; // Increment on successful read
-                    end
-                    end else begin
-                        `uvm_error(get_type_name(), "Read attempted but no data available")
-                        error_count++;
-                    end
+                    
+                    expected_wr_level--;
+                    expected_rd_level = fifo_depth - expected_wr_level; // rd_level = empty locations
+                    expected_fifo_read_count++; // Increment on successful read
+                    
+                    // Update status flags only once after read logic
+                    expected_rdempty         = (expected_wr_level == 0);
+                    expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value); // Use wr_level, not rd_level
+                    expected_underflow       = (expected_wr_level == 0) && tr.read_enable;    
+                end else begin
+                    `uvm_error(get_type_name(), "Read attempted but no data available")
+                    error_count++;
+                end
 
                     // Update status flags only once after read logic
-                    expected_rdempty         = (expected_data_queue.size() == 0) && tr.read_enable;
-                    expected_rdalmost_empty  = (expected_data_queue.size() <= tr.aempty_value);
-                    expected_underflow       = (expected_data_queue.size() == 0) && tr.read_enable;    
+                    expected_rdempty         = (expected_wr_level == 0);
+                    expected_rdalmost_empty  = (expected_wr_level <= tr.aempty_value);
+                    expected_underflow       = (expected_wr_level == 0) && tr.read_enable;    
 
                     // Check for underflow
                     if (tr.underflow != expected_underflow) begin
@@ -223,8 +225,9 @@ class scoreboard extends uvm_scoreboard;
                 `uvm_error(get_type_name(), "Invalid FIFO state: both full and empty")
                 error_count++;
             end
-            if (expected_wr_level + expected_rd_level != (1 << 5)) begin
-                `uvm_error(get_type_name(), $sformatf("FIFO level inconsistency: wr_level=%d, rd_level=%d", expected_wr_level, expected_rd_level))
+            // wr_level + rd_level should equal fifo_depth (wr_level = filled, rd_level = empty)
+            if (expected_wr_level + expected_rd_level != fifo_depth) begin
+                `uvm_error(get_type_name(), $sformatf("FIFO level inconsistency: wr_level=%d, rd_level=%d, total=%d, expected=%d", expected_wr_level, expected_rd_level, expected_wr_level + expected_rd_level, fifo_depth))
                 error_count++;
             end
         end

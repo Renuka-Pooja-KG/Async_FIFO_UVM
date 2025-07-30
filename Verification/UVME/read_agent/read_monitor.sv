@@ -28,31 +28,34 @@ class read_monitor extends uvm_monitor;
     forever begin
       @(rd_vif.read_monitor_cb);
 
-      // Capture signals from the interface
-      // // Asynchronous reset signals
-      // tr.hw_rst_n       = rd_vif.hw_rst_n;
-      // // Synchronous signals
-      // tr.sw_rst         = rd_vif.read_monitor_cb.sw_rst;
+      // Only capture when read_enable is active
+      if (rd_vif.read_monitor_cb.read_enable) begin
+        // Capture signals from the interface
+        // // Asynchronous reset signals
+        // tr.hw_rst_n       = rd_vif.hw_rst_n;
+        // // Synchronous signals
+        // tr.sw_rst         = rd_vif.read_monitor_cb.sw_rst;
 
-      tr.read_enable      = rd_vif.read_monitor_cb.read_enable;
-      tr.aempty_value    = rd_vif.read_monitor_cb.aempty_value;
-  
-      tr.rdempty         = rd_vif.read_monitor_cb.rdempty;
-      tr.rd_almost_empty = rd_vif.read_monitor_cb.rd_almost_empty;
-      tr.fifo_read_count = rd_vif.read_monitor_cb.fifo_read_count;
-      tr.underflow       = rd_vif.read_monitor_cb.underflow;
-      tr.rd_level        = rd_vif.read_monitor_cb.rd_level;
-      tr.read_data       = rd_vif.read_monitor_cb.read_data;
+        tr.read_enable      = rd_vif.read_monitor_cb.read_enable;
+        tr.aempty_value    = rd_vif.read_monitor_cb.aempty_value;
+    
+        tr.rdempty         = rd_vif.read_monitor_cb.rdempty;
+        tr.rd_almost_empty = rd_vif.read_monitor_cb.rd_almost_empty;
+        tr.fifo_read_count = rd_vif.read_monitor_cb.fifo_read_count;
+        tr.underflow       = rd_vif.read_monitor_cb.underflow;
+        tr.rd_level        = rd_vif.read_monitor_cb.rd_level;
+        tr.read_data       = rd_vif.read_monitor_cb.read_data;
 
-      // // Print all rd_vif signals for debug
-      // $monitor("Time=%0t rd_vif: read_enable=%b aempty_value=%d rdempty=%b rd_almost_empty=%b fifo_read_count=%d underflow=%b rd_level=%d read_data=%h",
-      //   $time, rd_vif.read_monitor_cb.read_enable, rd_vif.read_monitor_cb.aempty_value,
-      //   rd_vif.read_monitor_cb.rdempty, rd_vif.read_monitor_cb.rd_almost_empty, rd_vif.read_monitor_cb.fifo_read_count,
-      //   rd_vif.read_monitor_cb.underflow, rd_vif.read_monitor_cb.rd_level, rd_vif.read_monitor_cb.read_data);
+        // // Print all rd_vif signals for debug
+        // $monitor("Time=%0t rd_vif: read_enable=%b aempty_value=%d rdempty=%b rd_almost_empty=%b fifo_read_count=%d underflow=%b rd_level=%d read_data=%h",
+        //   $time, rd_vif.read_monitor_cb.read_enable, rd_vif.read_monitor_cb.aempty_value,
+        //   rd_vif.read_monitor_cb.rdempty, rd_vif.read_monitor_cb.rd_almost_empty, rd_vif.read_monitor_cb.fifo_read_count,
+        //   rd_vif.read_monitor_cb.underflow, rd_vif.read_monitor_cb.rd_level, rd_vif.read_monitor_cb.read_data);
 
-      `uvm_info(get_type_name(), $sformatf("Captured read transaction in read_monitor: %s", tr.sprint), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("Captured read transaction in read_monitor: %s", tr.sprint), UVM_LOW)
 
-      read_analysis_port.write(tr);
+        read_analysis_port.write(tr);
+      end
     end
   endtask
 endclass

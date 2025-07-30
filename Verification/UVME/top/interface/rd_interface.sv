@@ -34,7 +34,7 @@ interface rd_interface (
   endclocking
 
   // Monitor clocking block (all signals as input)
-  clocking read_monitor_cb @(posedge rclk);
+  clocking read_monitor_cb @(negedge rclk);
     default input #1step output #1step;
     // Synchronous reset signal
     //input sw_rst;
