@@ -37,7 +37,7 @@ module async_fifo_top_tb;
     .PIPE_WRITE(0),
     .DEBUG_ENABLE(1),
     .PIPE_READ(0),
-    .SYNC_STAGE(3)
+    .SYNC_STAGE(2)
   ) dut (
     // Write side
     .wclk(wclk),
