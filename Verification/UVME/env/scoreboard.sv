@@ -179,7 +179,7 @@ class scoreboard extends uvm_scoreboard;
                     end
             end       
             // Update status flags only once after read logic
-            expected_rdempty         = (expected_data_queue.size() == 0);
+            expected_rdempty         = (expected_data_queue.size() == 0) && tr.read_enable;
             expected_rdalmost_empty  = (expected_data_queue.size() <= tr.aempty_value);
             expected_underflow       = (expected_data_queue.size() == 0) && tr.read_enable;    
 
