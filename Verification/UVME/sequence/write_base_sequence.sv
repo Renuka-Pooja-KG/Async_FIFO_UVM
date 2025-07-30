@@ -37,6 +37,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Random scenario
   task random_scenario();
     write_sequence_item req;
+        
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     repeat (num_transactions) begin
       req = write_sequence_item::type_id::create("req");
       if (!req.randomize()) begin
@@ -123,6 +150,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Write-only scenario: write_enable is always high
   task write_only_scenario();
     write_sequence_item req;
+        
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     repeat (num_transactions) begin
       req = write_sequence_item::type_id::create("req");
       start_item(req);
@@ -140,6 +194,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Read-only scenario: write_enable is always low
   task read_only_scenario();
     write_sequence_item req;
+        
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     repeat (num_transactions) begin
       req = write_sequence_item::type_id::create("req");
       start_item(req);
@@ -157,6 +238,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Simultaneous scenario: write_enable is always high
   task simultaneous_scenario();
     write_sequence_item req;
+ 
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     repeat (num_transactions) begin
       req = write_sequence_item::type_id::create("req");
       start_item(req);
@@ -251,6 +359,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Test Case 1: Check the conditions to write the data into fifo when write enable =1
   task write_conditions_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // Write with write_enable = 1
     repeat (num_transactions) begin
       req = write_sequence_item::type_id::create("req");
@@ -269,6 +404,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Test Case 3: Check the memory that the data is accessing correct location or not in both write and read operations
   task memory_access_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // Write data to specific memory locations
     repeat (num_transactions) begin
       req = write_sequence_item::type_id::create("req");
@@ -287,6 +449,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Test Case 4: Check the full condition without reading the data
   task full_condition_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // Write continuously until FIFO is full (32 locations)
     repeat (35) begin // Write more than FIFO depth to trigger full condition
       req = write_sequence_item::type_id::create("req");
@@ -305,6 +494,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Test Case 6: Check the almost full condition based on almost_full_value
   task almost_full_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // Write until almost full condition is reached
     repeat (30) begin // Write enough to trigger almost full (afull_value = 28)
       req = write_sequence_item::type_id::create("req");
@@ -323,6 +539,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Test Case 8: Check overflow condition when write enable and write full signals are asserted
   task overflow_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // First fill the FIFO completely
     repeat (32) begin
       req = write_sequence_item::type_id::create("req");
@@ -354,6 +597,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Support scenario for Test Case 2: Read conditions - write domain provides minimal activity
   task read_conditions_support_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // Provide some data for reading, but keep write activity minimal
     repeat (5) begin
       req = write_sequence_item::type_id::create("req");
@@ -385,6 +655,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Support scenario for Test Case 5: Empty condition - write domain provides no data
   task empty_condition_support_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // Keep write disabled to maintain empty FIFO
     repeat (15) begin
       req = write_sequence_item::type_id::create("req");
@@ -403,6 +700,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Support scenario for Test Case 7: Almost empty - write domain provides some data then stops
   task almost_empty_support_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // First provide some data
     repeat (8) begin
       req = write_sequence_item::type_id::create("req");
@@ -434,6 +758,33 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
   // Support scenario for Test Case 9: Underflow - write domain provides no data
   task underflow_support_scenario();
     write_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (3) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.hw_rst_n = 0; // Assert hardware reset
+      req.sw_rst = 0;
+      req.mem_rst = 0;
+      req.write_enable = 0;
+      req.wdata = 0;
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
+    // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
     // Keep write disabled to maintain empty FIFO for underflow testing
     repeat (15) begin
       req = write_sequence_item::type_id::create("req");

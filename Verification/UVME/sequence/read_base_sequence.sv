@@ -37,6 +37,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Random scenario
   task random_scenario();
     read_sequence_item req;
+       
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     repeat (num_transactions) begin
       req = read_sequence_item::type_id::create("req");
       if (!req.randomize()) begin
@@ -52,7 +63,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   task reset_scenario();
     read_sequence_item req;
     // Hardware reset for 3 cycles
-    repeat (3) begin
+    repeat (11) begin
       `uvm_do_with(req, {
         // hw_rst_n == 0; // Assert hardware reset
         // sw_rst == 0; // Ensure software reset is low
@@ -61,56 +72,22 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
       })
       `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.sprint), UVM_HIGH)
     end
-    // De-assert hardware reset
-    `uvm_do_with(req, {
-      // hw_rst_n == 1; // De-assert hardware reset
-      // sw_rst == 0; // Ensure software reset is low
-      read_enable == 0;
-      aempty_value == 2;
-    })
-    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.sprint), UVM_HIGH)
-    // Software reset for 2 cycles
-    repeat (2) begin
-      `uvm_do_with(req, {
-        // hw_rst_n == 1; // Ensure hardware reset is de-asserted
-        // sw_rst == 1; // Assert software reset
-        read_enable == 0;
-        aempty_value == 2;
-      })
-      `uvm_info(get_type_name(), $sformatf("Software Reset: %s", req.sprint), UVM_HIGH)
-    end
-    // De-assert software reset
-    `uvm_do_with(req, {
-      // hw_rst_n == 1; // Ensure hardware reset is de-asserted
-      // sw_rst == 0; // De-assert software reset
-      read_enable == 0;
-      aempty_value == 2;
-    })
-    `uvm_info(get_type_name(), $sformatf("Normal Operation: %s", req.sprint), UVM_HIGH)
-    // Memory reset in write domain for 3 cycles
-    repeat (3) begin
-      `uvm_do_with(req, {
-        // hw_rst_n == 1; // De-assert hardware reset
-        // sw_rst == 0; // Ensure software reset is low
-        read_enable == 0;
-        aempty_value == 2;
-      })
-      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.sprint), UVM_HIGH)
-    end
-    // De-assert hardware reset
-    `uvm_do_with(req, {
-      // hw_rst_n == 1; // De-assert hardware reset
-      // sw_rst == 0; // Ensure software reset is low
-      read_enable == 0;
-      aempty_value == 2;
-    })
-    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.sprint), UVM_HIGH)
-   
   endtask
 
   // Write-only scenario: read_enable is always low
   task write_only_scenario();
     read_sequence_item req;
+       
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     repeat (num_transactions) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
@@ -126,6 +103,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Read-only scenario: read_enable is always high
   task read_only_scenario();
     read_sequence_item req;
+       
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     repeat (num_transactions) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
@@ -141,6 +129,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Simultaneous scenario: read_enable is always high (for read side)
   task simultaneous_scenario();
     read_sequence_item req;
+       
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     repeat (num_transactions) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
@@ -213,6 +212,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Test Case 2: Check the conditions to read the data from fifo when read enable =1
   task read_conditions_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Read with read_enable = 1
     repeat (num_transactions) begin
       req = read_sequence_item::type_id::create("req");
@@ -227,6 +237,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Test Case 5: Check the empty condition without writing the data
   task empty_condition_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Try to read from empty FIFO
     repeat (10) begin
       req = read_sequence_item::type_id::create("req");
@@ -241,6 +262,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Test Case 7: Check the almost empty condition based on almost_empty_value
   task almost_empty_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Read until almost empty condition is reached
     repeat (25) begin // Read enough to trigger almost empty
       req = read_sequence_item::type_id::create("req");
@@ -255,6 +287,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Test Case 9: Check underflow condition when read enable and read empty signals are asserted
   task underflow_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Try to read from empty FIFO to trigger underflow
     repeat (10) begin
       req = read_sequence_item::type_id::create("req");
@@ -269,6 +312,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Support scenario for Test Case 1: Write conditions - read domain provides minimal activity
   task write_conditions_support_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Keep read disabled to let write domain test write conditions
     repeat (15) begin
       req = read_sequence_item::type_id::create("req");
@@ -283,6 +337,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Support scenario for Test Case 3: Memory access - read domain provides some activity
   task memory_access_support_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Provide some read activity to test memory access
     repeat (15) begin
       req = read_sequence_item::type_id::create("req");
@@ -297,6 +362,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Support scenario for Test Case 4: Full condition - read domain provides minimal activity
   task full_condition_support_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Keep read disabled to let FIFO fill up
     repeat (40) begin
       req = read_sequence_item::type_id::create("req");
@@ -311,6 +387,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Support scenario for Test Case 6: Almost full - read domain provides minimal activity
   task almost_full_support_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Keep read disabled to let FIFO reach almost full
     repeat (30) begin
       req = read_sequence_item::type_id::create("req");
@@ -325,6 +412,17 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Support scenario for Test Case 8: Overflow - read domain provides minimal activity
   task overflow_support_scenario();
     read_sequence_item req;
+    
+    // Reset phase - ensure clean FIFO state
+    repeat (4) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
+    
     // Keep read disabled to let FIFO overflow
     repeat (40) begin
       req = read_sequence_item::type_id::create("req");
