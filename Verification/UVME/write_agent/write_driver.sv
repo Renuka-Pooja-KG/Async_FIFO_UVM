@@ -24,7 +24,6 @@ class write_driver extends uvm_driver #(write_sequence_item);
 
     forever begin
       seq_item_port.get_next_item(tr);
-      @(wr_vif.write_driver_cb);
       // Drive stimulus to the interface
       wr_vif.write_driver_cb.write_enable <= tr.write_enable;
       wr_vif.write_driver_cb.wdata       <= tr.wdata;
@@ -34,7 +33,7 @@ class write_driver extends uvm_driver #(write_sequence_item);
       // Drive asynchronous reset signals
       wr_vif.hw_rst_n    <= tr.hw_rst_n;
       wr_vif.mem_rst     <= tr.mem_rst;
-      
+      @(wr_vif.write_driver_cb);
       `uvm_info(get_type_name(), $sformatf("write_driver: tr = %s", tr.sprint), UVM_LOW)
       seq_item_port.item_done();
     end

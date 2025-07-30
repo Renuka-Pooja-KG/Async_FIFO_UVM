@@ -27,9 +27,9 @@ class read_driver extends uvm_driver #(read_sequence_item);
       seq_item_port.get_next_item(tr);
 
       // Drive stimulus to the interface
-      @(rd_vif.read_driver_cb);
       rd_vif.read_driver_cb.read_enable <= tr.read_enable;
       rd_vif.read_driver_cb.aempty_value <= tr.aempty_value;
+       @(rd_vif.read_driver_cb);
      
       `uvm_info(get_type_name(), $sformatf("read_driver: tr = %s", tr.sprint), UVM_LOW)
       seq_item_port.item_done();
