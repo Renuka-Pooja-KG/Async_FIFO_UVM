@@ -39,5 +39,19 @@ import uvm_pkg::*;
 `include "./../UVME/test/simultaneous_test.sv"
 `include "./../UVME/test/reset_write_read_test.sv"
 
+// New test cases for comprehensive FIFO verification
+`include "./../UVME/test/write_conditions_test.sv"
+`include "./../UVME/test/read_conditions_test.sv"
+`include "./../UVME/test/memory_access_test.sv"
+`include "./../UVME/test/full_condition_test.sv"
+`include "./../UVME/test/empty_condition_test.sv"
+`include "./../UVME/test/almost_full_test.sv"
+`include "./../UVME/test/almost_empty_test.sv"
+`include "./../UVME/test/overflow_test.sv"
+`include "./../UVME/test/underflow_test.sv"
+`include "./../UVME/test/write_read_level_test.sv"
+`include "./../UVME/test/faster_write_clock_test.sv"
+`include "./../UVME/test/faster_read_clock_test.sv"
+
 
 endpackage

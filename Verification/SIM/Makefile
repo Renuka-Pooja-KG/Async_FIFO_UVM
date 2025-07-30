@@ -14,13 +14,25 @@ info:
 	@echo "  simultaneous_test  		----> to run the simultaneous_test.sv"
 	@echo "  random_test  				----> to run the random_test.sv"
 	@echo "  reset_write_read_test  	----> to run the reset_write_read_test.sv"
+	@echo "  write_conditions_test  	----> to run the write_conditions_test.sv"
+	@echo "  read_conditions_test  	----> to run the read_conditions_test.sv"
+	@echo "  memory_access_test  		----> to run the memory_access_test.sv"
+	@echo "  full_condition_test  		----> to run the full_condition_test.sv"
+	@echo "  empty_condition_test  	----> to run the empty_condition_test.sv"
+	@echo "  almost_full_test  		----> to run the almost_full_test.sv"
+	@echo "  almost_empty_test  		----> to run the almost_empty_test.sv"
+	@echo "  overflow_test  			----> to run the overflow_test.sv"
+	@echo "  underflow_test  			----> to run the underflow_test.sv"
+	@echo "  write_read_level_test  	----> to run the write_read_level_test.sv"
+	@echo "  faster_write_clock_test  	----> to run the faster_write_clock_test.sv"
+	@echo "  faster_read_clock_test  	----> to run the faster_read_clock_test.sv"
 	@echo "  waveform   				----> to open the simvision"
 	@echo "  regression 				----> to run the regression & source the cmd and open the imc"
 	@echo "  clean      				----> to delete the previous xrun files and cov files"
 	@echo "/----------------------------------------------------------------------------------------//"
 
 # Default target that runs all tests
-all: base_test reset_test write_test read_test simultaneous_test random_test  reset_write_read_test waveform
+all: base_test reset_test write_test read_test simultaneous_test random_test reset_write_read_test write_conditions_test read_conditions_test memory_access_test full_condition_test empty_condition_test almost_full_test almost_empty_test overflow_test underflow_test write_read_level_test faster_write_clock_test faster_read_clock_test waveform
 
 # Base test case
 base_test:
@@ -57,6 +69,66 @@ reset_write_read_test:
 	@echo "[makefile]  random test case is running"
 	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=reset_write_read_test -uvmhome CDNS-1.1d
 	@echo "[makefile]  random test case run is completed successfully"
+
+write_conditions_test:
+	@echo "[makefile]  write conditions test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=write_conditions_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  write conditions test case run is completed successfully"
+
+read_conditions_test:
+	@echo "[makefile]  read conditions test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=read_conditions_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  read conditions test case run is completed successfully"
+
+memory_access_test:
+	@echo "[makefile]  memory access test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=memory_access_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  memory access test case run is completed successfully"
+
+full_condition_test:
+	@echo "[makefile]  full condition test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=full_condition_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  full condition test case run is completed successfully"
+
+empty_condition_test:
+	@echo "[makefile]  empty condition test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=empty_condition_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  empty condition test case run is completed successfully"
+
+almost_full_test:
+	@echo "[makefile]  almost full test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=almost_full_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  almost full test case run is completed successfully"
+
+almost_empty_test:
+	@echo "[makefile]  almost empty test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=almost_empty_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  almost empty test case run is completed successfully"
+
+overflow_test:
+	@echo "[makefile]  overflow test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=overflow_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  overflow test case run is completed successfully"
+
+underflow_test:
+	@echo "[makefile]  underflow test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=underflow_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  underflow test case run is completed successfully"
+
+write_read_level_test:
+	@echo "[makefile]  write read level test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=write_read_level_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  write read level test case run is completed successfully"
+
+faster_write_clock_test:
+	@echo "[makefile]  faster write clock test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=faster_write_clock_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  faster write clock test case run is completed successfully"
+
+faster_read_clock_test:
+	@echo "[makefile]  faster read clock test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=faster_read_clock_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  faster read clock test case run is completed successfully"
 
 # regression
 regression:

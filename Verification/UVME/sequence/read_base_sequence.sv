@@ -4,6 +4,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   // Configuration parameters
   int num_transactions = 10;
   int scenario = 0; // 0: random, 1: reset, 2: write_only, 3: read_only, 4: simultaneous, 5: reset-write-read
+                    // 6: read_conditions, 7: empty_condition, 8: almost_empty, 9: underflow
+                    // 10: write_conditions_support, 11: memory_access_support, 12: full_condition_support, 13: almost_full_support, 14: overflow_support
 
   function new(string name = "read_base_sequence");
     super.new(name);
@@ -18,6 +20,15 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
       3: read_only_scenario();
       4: simultaneous_scenario();
       5: reset_write_read_scenario();
+      6: read_conditions_scenario();
+      7: empty_condition_scenario();
+      8: almost_empty_scenario();
+      9: underflow_scenario();
+      10: write_conditions_support_scenario();
+      11: memory_access_support_scenario();
+      12: full_condition_support_scenario();
+      13: almost_full_support_scenario();
+      14: overflow_support_scenario();
       default: random_scenario();
     endcase
     `uvm_info(get_type_name(), "read_base_sequence completed", UVM_LOW)
@@ -198,4 +209,131 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
       `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.sprint), UVM_HIGH)
     end
   endtask
+
+  // Test Case 2: Check the conditions to read the data from fifo when read enable =1
+  task read_conditions_scenario();
+    read_sequence_item req;
+    // Read with read_enable = 1
+    repeat (num_transactions) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 1; // Enable read
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Read Conditions: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
+  // Test Case 5: Check the empty condition without writing the data
+  task empty_condition_scenario();
+    read_sequence_item req;
+    // Try to read from empty FIFO
+    repeat (10) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 1; // Keep reading even when empty
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Empty Condition: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
+  // Test Case 7: Check the almost empty condition based on almost_empty_value
+  task almost_empty_scenario();
+    read_sequence_item req;
+    // Read until almost empty condition is reached
+    repeat (25) begin // Read enough to trigger almost empty
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 1;
+      req.aempty_value = 4; // Set almost empty threshold
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Almost Empty: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
+  // Test Case 9: Check underflow condition when read enable and read empty signals are asserted
+  task underflow_scenario();
+    read_sequence_item req;
+    // Try to read from empty FIFO to trigger underflow
+    repeat (10) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 1; // Keep reading even when empty
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Underflow: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
+  // Support scenario for Test Case 1: Write conditions - read domain provides minimal activity
+  task write_conditions_support_scenario();
+    read_sequence_item req;
+    // Keep read disabled to let write domain test write conditions
+    repeat (15) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Write Conditions Support: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
+  // Support scenario for Test Case 3: Memory access - read domain provides some activity
+  task memory_access_support_scenario();
+    read_sequence_item req;
+    // Provide some read activity to test memory access
+    repeat (15) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 1; // Enable read to test memory access
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Memory Access Support: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
+  // Support scenario for Test Case 4: Full condition - read domain provides minimal activity
+  task full_condition_support_scenario();
+    read_sequence_item req;
+    // Keep read disabled to let FIFO fill up
+    repeat (40) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Full Condition Support: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
+  // Support scenario for Test Case 6: Almost full - read domain provides minimal activity
+  task almost_full_support_scenario();
+    read_sequence_item req;
+    // Keep read disabled to let FIFO reach almost full
+    repeat (30) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Almost Full Support: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
+  // Support scenario for Test Case 8: Overflow - read domain provides minimal activity
+  task overflow_support_scenario();
+    read_sequence_item req;
+    // Keep read disabled to let FIFO overflow
+    repeat (40) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Overflow Support: %s", req.sprint), UVM_HIGH)
+    end
+  endtask
+
 endclass
