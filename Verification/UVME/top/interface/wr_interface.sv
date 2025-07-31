@@ -26,7 +26,7 @@ interface wr_interface (
   endclocking
 
   // Monitor clocking block (all signals as input)
-  clocking write_monitor_cb @(negedge wclk);
+  clocking write_monitor_cb @(posedge wclk);
     default input #1step output #1step;
     input wdata, write_enable, afull_value, sw_rst;
     input wfull, wr_almost_ful, overflow, fifo_write_count, wr_level;
