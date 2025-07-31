@@ -270,7 +270,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
     
     // Reset phase - ensure clean FIFO state
-    repeat (20) begin
+    repeat (10) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Keep read disabled during reset
@@ -280,10 +280,20 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     end
     
     // Read until almost empty condition is reached
-    repeat (25) begin // Read enough to trigger almost empty
+    repeat (8) begin // Read enough to trigger almost empty
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 1;
+      req.aempty_value = 4; // Set almost empty threshold
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Almost Empty: %s", req.sprint), UVM_HIGH)
+    end
+
+      // Read until almost empty condition is reached
+    repeat (2) begin // Read enough to trigger almost empty
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0;
       req.aempty_value = 4; // Set almost empty threshold
       finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Almost Empty: %s", req.sprint), UVM_HIGH)
