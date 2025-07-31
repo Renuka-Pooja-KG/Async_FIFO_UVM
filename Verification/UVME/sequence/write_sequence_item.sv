@@ -41,20 +41,9 @@ class write_sequence_item extends uvm_sequence_item;
     (mem_rst == 1) -> (write_enable == 0 && wdata == 0);
   }
 
-  // Data integrity constraints
-  constraint write_data_constraint {
-    (write_enable == 1 && hw_rst_n == 1 && sw_rst == 0 && mem_rst == 0) -> 
-      (wdata != 0);  // Ensure non-zero data when writing
-  }
-
   // Original constraints
   constraint wdata_zero_when_write_enable_off {
     (write_enable == 0) -> (wdata == 0);
-  }
-
-  //Constraint that write_enable is 0 when overflow is 1
-  constraint write_enable_when_overflow_off {
-    (overflow == 1) -> (write_enable == 0);
   }
 
   `uvm_object_utils_begin(write_sequence_item)
