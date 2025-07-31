@@ -64,12 +64,13 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
     // Hardware reset for 3 cycles
     repeat (20) begin
-      `uvm_do_with(req, {
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
         // hw_rst_n == 0; // Assert hardware reset
         // sw_rst == 0; // Ensure software reset is low
-        read_enable == 0;
-        aempty_value == 2;
-      })
+      req.read_enable = 0;
+      req.aempty_value = 2;
+      finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.sprint), UVM_HIGH)
     end
   endtask
@@ -158,53 +159,58 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
     // Hardware reset for 3 cycles
     repeat (3) begin
-      `uvm_do_with(req, {
-        // hw_rst_n == 0; // Assert hardware reset
-        // sw_rst == 0; // Ensure software reset is low
-        read_enable == 0;
-        aempty_value == 2;
-      })
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      // hw_rst_n == 0; // Assert hardware reset
+      // sw_rst == 0; // Ensure software reset is low
+      req.read_enable = 0;
+      req.aempty_value = 2;
+      finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.sprint), UVM_HIGH)
     end
     // De-assert hardware reset
-    `uvm_do_with(req, {
-      // hw_rst_n == 1; // De-assert hardware reset
-      // sw_rst == 0; // Ensure software reset is low
-      read_enable == 0;
-      aempty_value == 2;
-    })
+    req = read_sequence_item::type_id::create("req");
+    start_item(req);
+    // hw_rst_n == 1; // De-assert hardware reset
+    // sw_rst == 0; // Ensure software reset is low
+    req.read_enable = 0;
+    req.aempty_value = 2;
+    finish_item(req);
     `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.sprint), UVM_HIGH)
     // Write operation for 10 cycles
     repeat (10) begin
-      `uvm_do_with(req, {
-        read_enable == 0; // Ensure read_enable is low
-        aempty_value == 2; // Set aempty_value to a valid state
-
-      })
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Ensure read_enable is low
+      req.aempty_value = 2; // Set aempty_value to a valid state
+      finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.sprint), UVM_HIGH)
     end
     // Read operation for 5 cycles
     repeat (5) begin
-      `uvm_do_with(req, {
-        read_enable == 1; // Ensure read_enable is high
-        aempty_value == 4; // Set aempty_value to a valid state
-      })
+        req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 1; // Ensure read_enable is high
+      req.aempty_value = 4; // Set aempty_value to a valid state
+      finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.sprint), UVM_HIGH)
     end
     // Write operation for 10 cycles
     repeat (10) begin
-      `uvm_do_with(req, {
-        read_enable == 0; // Ensure read_enable is low
-        aempty_value == 2; // Set aempty_value to a valid state
-      })
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Ensure read_enable is low
+      req.aempty_value = 2; // Set aempty_value to a valid state
+      finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.sprint), UVM_HIGH)
     end
     // Read operation for 5 cycles
     repeat (5) begin
-      `uvm_do_with(req, {
-        read_enable == 1; // Ensure read_enable is high
-        aempty_value == 4; // Set aempty_value to a valid state
-      })
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 1; // Ensure read_enable is high
+      req.aempty_value = 4; // Set aempty_value to a valid state
+      finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Read Operation: %s", req.sprint), UVM_HIGH)
     end
   endtask
