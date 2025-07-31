@@ -13,9 +13,9 @@ module async_fifo_top_tb;
 
   // Clock generation
   initial wclk = 0;
-  always #5 wclk = ~wclk; // 100MHz if WCLK_SPEED=10
+  always #10 wclk = ~wclk; // 100MHz if WCLK_SPEED=10
   initial rclk = 0;
-  always #7 rclk = ~rclk; // ~71.4MHz if RCLK_SPEED=14
+  always #6 rclk = ~rclk; // ~71.4MHz if RCLK_SPEED=14
 
    wr_interface wr_if (
     .wclk(wclk)
