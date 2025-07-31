@@ -19,7 +19,7 @@ interface wr_interface (
 
   // Write domain clocking block (for driver)
   clocking write_driver_cb @(negedge wclk);
-    default input #1step output #1step;
+    //default input #1step output #1step;
     // Synchronous signals only
     output wdata, write_enable, afull_value, sw_rst;
     input wfull, wr_almost_ful, overflow, fifo_write_count, wr_level;
@@ -27,7 +27,7 @@ interface wr_interface (
 
   // Monitor clocking block (all signals as input)
   clocking write_monitor_cb @(posedge wclk);
-    default input #1step output #1step;
+    default input #0 output #1step;
     input wdata, write_enable, afull_value, sw_rst;
     input wfull, wr_almost_ful, overflow, fifo_write_count, wr_level;
   endclocking

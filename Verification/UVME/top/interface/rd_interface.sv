@@ -21,7 +21,7 @@ interface rd_interface (
 
   // Read domain clocking block (for driver)
   clocking read_driver_cb @(negedge rclk);
-    default input #1step output #1step;
+    // default input #1step output #1step;
    
     //Synchronous reset signal
    // output sw_rst;
@@ -35,7 +35,7 @@ interface rd_interface (
 
   // Monitor clocking block (all signals as input)
   clocking read_monitor_cb @(posedge rclk);
-    default input #1step output #1step;
+    default input #0 output #1step;
     // Synchronous reset signal
     //input sw_rst;
     // Read domain inputs (sampled on rclk)
