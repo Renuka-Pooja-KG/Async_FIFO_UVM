@@ -16,8 +16,8 @@ class read_only_test extends base_test;
     // Set the scenario for read and write sequences
     wseq.scenario = 3; // read_only
     rseq.scenario = 3; // read_only
-    wseq.num_transactions = 10; // Set number of transactions for write sequence
-    rseq.num_transactions = 10; // Set number of transactions for read sequence
+    wseq.num_transactions = 20; // Set number of transactions for write sequence
+    rseq.num_transactions = 20; // Set number of transactions for read sequence
     `uvm_info(get_type_name(), "Read only test build_phase completed", UVM_LOW)
   endfunction
 
