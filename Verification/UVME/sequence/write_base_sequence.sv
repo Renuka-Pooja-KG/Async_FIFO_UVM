@@ -903,6 +903,20 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
     finish_item(req);
     `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
     
+     // First provide some data
+    repeat (5) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.write_enable = 1; // Enable write to provide data
+      req.sw_rst      = 0;
+      req.hw_rst_n    = 1;
+      req.mem_rst     = 0;
+      req.wdata       = $urandom_range(0, 32'hFFFFFFFF);
+      req.afull_value = 28;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Almost Empty Support (write): %s", req.sprint), UVM_HIGH)
+    end
+    
     // Keep write disabled to maintain empty FIFO for underflow testing
     repeat (15) begin
       req = write_sequence_item::type_id::create("req");

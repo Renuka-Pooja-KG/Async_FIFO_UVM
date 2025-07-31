@@ -313,15 +313,32 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
       finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
     end
-    
+     // Read disabled when writing
+    repeat (5) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
+    end
     // Try to read from empty FIFO to trigger underflow
-    repeat (10) begin
+    repeat (6) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 1; // Keep reading even when empty
       req.aempty_value = 4;
       finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Underflow: %s", req.sprint), UVM_HIGH)
+    end
+     // Read disabled 
+    repeat (2) begin
+      req = read_sequence_item::type_id::create("req");
+      start_item(req);
+      req.read_enable = 0; // Keep read disabled during reset
+      req.aempty_value = 4;
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
     end
   endtask
 
