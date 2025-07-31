@@ -255,7 +255,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     end
     
     // Try to read from empty FIFO
-    repeat (10) begin
+    repeat (30) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 1; // Keep reading even when empty

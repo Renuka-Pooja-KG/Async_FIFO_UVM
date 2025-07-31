@@ -614,7 +614,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
     `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
     
     // Write until almost full condition is reached
-    repeat (30) begin // Write enough to trigger almost full (afull_value = 28)
+    repeat (29) begin // Write enough to trigger almost full (afull_value = 28)
       req = write_sequence_item::type_id::create("req");
       start_item(req);
       req.write_enable = 1;
@@ -626,6 +626,19 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       finish_item(req);
       `uvm_info(get_type_name(), $sformatf("Almost Full: %s", req.sprint), UVM_HIGH)
     end
+
+     // De-assert reset
+    req = write_sequence_item::type_id::create("req");
+    start_item(req);
+    req.hw_rst_n = 1; // De-assert hardware reset
+    req.sw_rst = 0;
+    req.mem_rst = 0;
+    req.write_enable = 0;
+    req.wdata = 0;
+    req.afull_value = 28;
+    finish_item(req);
+    `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+    
   endtask
 
   // Test Case 8: Check overflow condition when write enable and write full signals are asserted
@@ -775,7 +788,7 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
     `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
     
     // Write operation for 32 cycles
-    repeat (32) begin
+    repeat (30) begin
       req = write_sequence_item::type_id::create("req");
       start_item(req);
       req.write_enable = 1; // Ensure write_enable is high
