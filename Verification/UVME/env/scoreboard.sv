@@ -64,6 +64,7 @@ class scoreboard extends uvm_scoreboard;
         expected_rdalmost_empty = 0;
         expected_underflow = 0;
         reset_active = 0;
+        `uvm_info(get_type_name(), $sformatf("Scoreboard initialized: wr_level=%d, fifo_write_count=%d", expected_wr_level, expected_fifo_write_count), UVM_MEDIUM)
     endfunction
 
     function void connect_phase(uvm_phase phase);
@@ -258,9 +259,10 @@ class scoreboard extends uvm_scoreboard;
 
     task process_write_transaction();
         `uvm_info(get_type_name(), $sformatf("Processing write transaction at time %0t: %s", $time, write_tr.sprint), UVM_LOW)
-        `uvm_info(get_type_name(), $sformatf("Before write: wr_level=%d, rd_level=%d, queue_size=%d", expected_wr_level, expected_rd_level, expected_data_queue.size()), UVM_HIGH)
+        `uvm_info(get_type_name(), $sformatf("Before write: wr_level=%d, rd_level=%d, queue_size=%d, fifo_write_count=%d", expected_wr_level, expected_rd_level, expected_data_queue.size(), expected_fifo_write_count), UVM_HIGH)
 
         // Check for any active reset
+        `uvm_info(get_type_name(), $sformatf("Checking reset: hw_rst_n=%b, sw_rst=%b, mem_rst=%b", write_tr.hw_rst_n, write_tr.sw_rst, write_tr.mem_rst), UVM_HIGH)
         if (!write_tr.hw_rst_n || write_tr.sw_rst || write_tr.mem_rst) begin
             `uvm_info(get_type_name(), "Reset active — clearing scoreboard state", UVM_MEDIUM)
             reset_active = 1;

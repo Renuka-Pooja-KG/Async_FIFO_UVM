@@ -28,8 +28,8 @@ class write_monitor extends uvm_monitor;
     forever begin
       @(wr_vif.write_monitor_cb);
 
-      // Only capture when write_enable is active
-      if (wr_vif.write_monitor_cb.write_enable) begin
+      // Capture when write_enable is active OR when any reset is active
+      if (wr_vif.write_monitor_cb.write_enable || !wr_vif.hw_rst_n || wr_vif.mem_rst || wr_vif.write_monitor_cb.sw_rst) begin
         // Capture signals from the interface
         // Asynchronous reset signals
         tr.hw_rst_n       = wr_vif.hw_rst_n;
@@ -52,7 +52,11 @@ class write_monitor extends uvm_monitor;
         //   wr_vif.write_monitor_cb.wr_almost_ful, wr_vif.write_monitor_cb.fifo_write_count,
         //   wr_vif.write_monitor_cb.wr_level, wr_vif.write_monitor_cb.overflow);
 
-        `uvm_info(get_type_name(), $sformatf("Captured write transaction in write_monitor: %s", tr.sprint), UVM_LOW)
+        if (wr_vif.write_monitor_cb.write_enable) begin
+          `uvm_info(get_type_name(), $sformatf("Captured write transaction in write_monitor: %s", tr.sprint), UVM_LOW)
+        end else begin
+          `uvm_info(get_type_name(), $sformatf("Captured reset transaction in write_monitor: hw_rst_n=%b, mem_rst=%b, sw_rst=%b", wr_vif.hw_rst_n, wr_vif.mem_rst, wr_vif.write_monitor_cb.sw_rst), UVM_LOW)
+        end
         write_analysis_port.write(tr);
       end
     end
