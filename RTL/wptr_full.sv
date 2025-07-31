@@ -145,9 +145,9 @@ always_ff @(posedge wclk or negedge hw_rst_n) begin
         begin
         	wr_overflow <= wr_overflow_w ;
     	end
-	else begin
-		wr_overflow <= 1'b0;
-	end
+		else begin
+			wr_overflow <= 1'b0;
+		end
 end
 
 
