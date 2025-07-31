@@ -277,6 +277,7 @@ class scoreboard extends uvm_scoreboard;
             expected_overflow           = 0;
             expected_fifo_write_count   = 0; // Reset write count
             expected_fifo_read_count    = 0; // Reset read count
+            `uvm_info(get_type_name(), $sformatf("Reset completed: wr_level=%d, fifo_write_count=%d", expected_wr_level, expected_fifo_write_count), UVM_MEDIUM)
         end else begin
             reset_active = 0;
         end
@@ -291,7 +292,7 @@ class scoreboard extends uvm_scoreboard;
                 expected_rd_level = fifo_depth - expected_wr_level; // Update read level
                 expected_fifo_write_count++; // Increment on successful write
                 
-                `uvm_info(get_type_name(), $sformatf("After write: data=0x%h, wr_level=%d, rd_level=%d, wfull=%b", write_tr.wdata, expected_wr_level, expected_rd_level, expected_wfull), UVM_HIGH)
+                `uvm_info(get_type_name(), $sformatf("After write: data=0x%h, wr_level=%d, rd_level=%d, wfull=%b, fifo_write_count=%d", write_tr.wdata, expected_wr_level, expected_rd_level, expected_wfull, expected_fifo_write_count), UVM_HIGH)
             end else begin
                 // Write attempted when full - this should trigger overflow
                 `uvm_info(get_type_name(), $sformatf("Write attempted when full - overflow expected: data=0x%h, wr_level=%d", write_tr.wdata, expected_wr_level), UVM_HIGH)
@@ -321,11 +322,17 @@ class scoreboard extends uvm_scoreboard;
                 error_count++;
             end
             // Check FIFO write count - compare against the expected value after this write operation
+            // The monitor captures the RTL state at posedge when write_enable is high
+            // This represents the state AFTER the write operation has been processed
+            `uvm_info(get_type_name(), $sformatf("Comparing write count: expected=%0d, actual=%0d", expected_fifo_write_count, write_tr.fifo_write_count), UVM_HIGH)
             if (write_tr.fifo_write_count != expected_fifo_write_count) begin
                 `uvm_error(get_type_name(), $sformatf("FIFO write count mismatch: expected=%0d, actual=%0d", expected_fifo_write_count, write_tr.fifo_write_count))
                 error_count++;
             end
             // Check FIFO write level - compare against the expected value after this write operation
+            // The monitor captures the RTL state at posedge when write_enable is high
+            // This represents the state AFTER the write operation has been processed
+            `uvm_info(get_type_name(), $sformatf("Comparing write level: expected=%0d, actual=%0d", expected_wr_level, write_tr.wr_level), UVM_HIGH)
             if (write_tr.wr_level != expected_wr_level) begin
                 `uvm_error(get_type_name(), $sformatf("FIFO write level mismatch: expected=%0d, actual=%0d", expected_wr_level, write_tr.wr_level))
                 error_count++;
