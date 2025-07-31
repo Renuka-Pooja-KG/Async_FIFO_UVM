@@ -294,6 +294,20 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
     req.afull_value = 28;
     finish_item(req);
     `uvm_info(get_type_name(), $sformatf("De-assert Reset: %s", req.sprint), UVM_HIGH)
+
+    // Write operation for 10 cycles
+    repeat (10) begin
+      req = write_sequence_item::type_id::create("req");
+      start_item(req);
+      req.write_enable = 1; // Ensure write_enable is high
+      req.sw_rst      = 0; // Ensure software reset is low
+      req.hw_rst_n    = 1; // Ensure hardware reset is de-asserted
+      req.mem_rst     = 0; // Ensure memory reset is low
+      req.wdata       = $urandom_range(0, 32'hFFFFFFFF);
+      req.afull_value = 28; // Set afull_value to a valid state
+      finish_item(req);
+      `uvm_info(get_type_name(), $sformatf("Simultaneous: %s", req.sprint), UVM_HIGH)
+    end
     
     repeat (num_transactions) begin
       req = write_sequence_item::type_id::create("req");
