@@ -63,7 +63,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
   task reset_scenario();
     read_sequence_item req;
     // Hardware reset for 3 cycles
-    repeat (11) begin
+    repeat (20) begin
       `uvm_do_with(req, {
         // hw_rst_n == 0; // Assert hardware reset
         // sw_rst == 0; // Ensure software reset is low

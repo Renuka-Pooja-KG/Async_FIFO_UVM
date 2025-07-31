@@ -100,6 +100,56 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       afull_value == 28;
     })
     `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.sprint), UVM_HIGH)
+
+    // Write operation for 3 cycles
+    repeat (3) begin
+      `uvm_do_with(req, {
+        hw_rst_n == 1; // Ensure hardware reset is de-asserted
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 1;
+        wdata == $urandom_range(0, 32'hFFFFFFFF);
+        afull_value == 28;
+      })
+      `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.sprint), UVM_HIGH)
+    end
+
+//Hardware reset for 3 cycles
+    repeat (3) begin
+      `uvm_do_with(req, {
+        hw_rst_n == 0; // Assert hardware reset
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 0;
+        wdata == 0;
+        afull_value == 28;
+      })
+      `uvm_info(get_type_name(), $sformatf("Hardware Reset: %s", req.sprint), UVM_HIGH)
+    end
+
+    // De-assert hardware reset 
+    `uvm_do_with(req, {
+      hw_rst_n == 1; // De-assert hardware reset
+      sw_rst == 0; // Ensure software reset is low
+      mem_rst == 0; // Ensure memory reset is low
+      write_enable == 0;
+      wdata == 0;
+      afull_value == 28;
+    })
+    `uvm_info(get_type_name(), $sformatf("De-assert Hardware Reset: %s", req.sprint), UVM_HIGH)
+
+    // Write operation for 3 cycles
+    repeat (3) begin
+      `uvm_do_with(req, {
+        hw_rst_n == 1; // Ensure hardware reset is de-asserted
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 1;
+        wdata == $urandom_range(0, 32'hFFFFFFFF);
+        afull_value == 28;
+      })
+      `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.sprint), UVM_HIGH)
+    end
     // Software reset for 2 cycles
     repeat (2) begin
       `uvm_do_with(req, {
@@ -122,6 +172,19 @@ class write_base_sequence extends uvm_sequence #(write_sequence_item);
       afull_value == 28;
     })
     `uvm_info(get_type_name(), $sformatf("Normal Operation: %s", req.sprint), UVM_HIGH)
+    // Write operation for 3 cycles
+    repeat (3) begin
+      `uvm_do_with(req, {
+        hw_rst_n == 1; // Ensure hardware reset is de-asserted
+        sw_rst == 0; // Ensure software reset is low
+        mem_rst == 0; // Ensure memory reset is low
+        write_enable == 1;
+        wdata == $urandom_range(0, 32'hFFFFFFFF);
+        afull_value == 28;
+      })
+      `uvm_info(get_type_name(), $sformatf("Write Operation: %s", req.sprint), UVM_HIGH)
+    end
+
     // Memory reset for 3 cycles
     repeat (3) begin
       `uvm_do_with(req, {

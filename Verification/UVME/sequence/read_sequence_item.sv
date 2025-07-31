@@ -11,6 +11,40 @@ class read_sequence_item extends uvm_sequence_item;
   bit [5:0] rd_level;
   bit [31:0] read_data;
 
+  // FIFO level constraints
+  constraint rd_level_constraint {
+    rd_level <= 32;     // Read level cannot exceed FIFO depth
+    rd_level >= 0;      // Read level cannot be negative
+  }
+
+  // Almost empty value constraint
+  constraint aempty_value_constraint {
+    aempty_value <= 31; // Almost empty value cannot exceed FIFO depth
+    aempty_value >= 1;  // Almost empty value should be at least 1
+  }
+
+  // // Underflow prevention constraints
+  // constraint read_when_empty_constraint {
+  //   (rdempty == 1) -> (read_enable == 0);
+  // }
+
+  // Underflow testing constraint (for specific test scenarios)
+  constraint underflow_testing_constraint {
+    // When testing underflow, allow read even when empty
+    (underflow == 1) -> (rdempty == 1 && read_enable == 1);
+  }
+
+  // // Data validation constraints
+  // constraint read_data_constraint {
+  //   (read_enable == 1 && rdempty == 0) -> (read_data != 32'hx);
+  //   (rdempty == 1) -> (read_data == 32'h0);  // Default value when empty
+  // }
+
+  // // Read enable constraints for normal operation
+  // constraint read_enable_normal_constraint {
+  //   (rdempty == 0) -> (read_enable dist {0:=70, 1:=30}); // 70% disable, 30% enable when not empty
+  // }
+
   `uvm_object_utils_begin(read_sequence_item)
     `uvm_field_int(read_enable, UVM_ALL_ON)
     `uvm_field_int(aempty_value, UVM_ALL_ON)

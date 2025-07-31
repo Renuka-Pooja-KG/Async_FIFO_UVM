@@ -12,8 +12,49 @@ class write_sequence_item extends uvm_sequence_item;
   bit [5:0] wr_level;
   bit overflow;
 
+  // FIFO depth and level constraints
+  constraint fifo_depth_constraint {
+    afull_value <= 31;  // Almost full value cannot exceed FIFO depth
+    afull_value >= 1;   // Almost full value should be at least 1
+  }
+
+  constraint wr_level_constraint {
+    wr_level <= 32;     // Write level cannot exceed FIFO depth
+    wr_level >= 0;      // Write level cannot be negative
+  }
+
+  // // Overflow prevention constraints
+  // constraint write_when_full_constraint {
+  //   (wfull == 1) -> (write_enable == 0);
+  // }
+
+  // Overflow testing constraint (for specific test scenarios)
+  constraint overflow_testing_constraint {
+    // When testing overflow, allow write even when full
+    (overflow == 1) -> (wfull == 1 && write_enable == 1);
+  }
+
+  // Reset state constraints
+  constraint reset_state_constraint {
+    (hw_rst_n == 0) -> (write_enable == 0 && wdata == 0);
+    (sw_rst == 1) -> (write_enable == 0 && wdata == 0);
+    (mem_rst == 1) -> (write_enable == 0 && wdata == 0);
+  }
+
+  // Data integrity constraints
+  constraint write_data_constraint {
+    (write_enable == 1 && hw_rst_n == 1 && sw_rst == 0 && mem_rst == 0) -> 
+      (wdata != 0);  // Ensure non-zero data when writing
+  }
+
+  // Original constraints
   constraint wdata_zero_when_write_enable_off {
     (write_enable == 0) -> (wdata == 0);
+  }
+
+  //Constraint that write_enable is 0 when overflow is 1
+  constraint write_enable_when_overflow_off {
+    (overflow == 1) -> (write_enable == 0);
   }
 
   `uvm_object_utils_begin(write_sequence_item)
