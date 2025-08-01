@@ -57,7 +57,6 @@ class scoreboard extends uvm_scoreboard;
     bit data_integrity_priority = 1; // Flag to prioritize data integrity over level matching
     
     // Variables to track write_enable deassertion behavior
-    bit prev_write_enable = 0; // Track previous write_enable state
     bit ignore_last_write = 0; // Flag to ignore last write due to immediate deassertion
     bit skip_read_data_check = 0; // Flag to skip read data integrity check when write_enable deasserts
     bit skip_read_transaction_check = 0; // Flag to skip read transaction checks when read was affected by timing
@@ -104,7 +103,6 @@ class scoreboard extends uvm_scoreboard;
         data_integrity_priority = 1;
         
         // Initialize write_enable deassertion tracking variables
-        prev_write_enable = 0;
         ignore_last_write = 0;
         skip_read_data_check = 0;
         skip_read_transaction_check = 0;
@@ -449,7 +447,6 @@ class scoreboard extends uvm_scoreboard;
             data_integrity_priority = 1;
             
             // Reset write_enable deassertion tracking variables
-            prev_write_enable = 0;
             ignore_last_write = 0;
             skip_read_data_check = 0;
             skip_read_transaction_check = 0;
