@@ -57,7 +57,6 @@ class scoreboard extends uvm_scoreboard;
     bit data_integrity_priority = 1; // Flag to prioritize data integrity over level matching
     
     // Variables to track write_enable deassertion behavior
-    bit prev_write_enable = 0; // Track previous write_enable state
     bit ignore_last_write = 0; // Flag to ignore last write due to immediate deassertion
 
     function new(string name = "scoreboard", uvm_component parent = null);
@@ -102,7 +101,6 @@ class scoreboard extends uvm_scoreboard;
         data_integrity_priority = 1;
         
         // Initialize write_enable deassertion tracking variables
-        prev_write_enable = 0;
         ignore_last_write = 0;
         
         `uvm_info(get_type_name(), $sformatf("Scoreboard initialized: wr_level=%d, fifo_write_count=%d", expected_wr_level, expected_fifo_write_count), UVM_MEDIUM)
@@ -434,7 +432,6 @@ class scoreboard extends uvm_scoreboard;
             data_integrity_priority = 1;
             
             // Reset write_enable deassertion tracking variables
-            prev_write_enable = 0;
             ignore_last_write = 0;
             
             `uvm_info(get_type_name(), $sformatf("Reset completed: wr_level=%d, fifo_write_count=%d", expected_wr_level, expected_fifo_write_count), UVM_MEDIUM)
