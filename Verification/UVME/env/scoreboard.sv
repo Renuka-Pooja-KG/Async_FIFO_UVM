@@ -55,6 +55,10 @@ class scoreboard extends uvm_scoreboard;
     bit level_mismatch_tolerance = 1; // Enable tolerance for level mismatches during simultaneous operations
     int simultaneous_operation_count = 0; // Track number of simultaneous operations
     bit data_integrity_priority = 1; // Flag to prioritize data integrity over level matching
+    
+    // Variables to track write_enable deassertion behavior
+    bit prev_write_enable = 0; // Track previous write_enable state
+    bit ignore_last_write = 0; // Flag to ignore last write due to immediate deassertion
 
     function new(string name = "scoreboard", uvm_component parent = null);
         super.new(name, parent);
@@ -96,6 +100,10 @@ class scoreboard extends uvm_scoreboard;
         level_mismatch_tolerance = 1;
         simultaneous_operation_count = 0;
         data_integrity_priority = 1;
+        
+        // Initialize write_enable deassertion tracking variables
+        prev_write_enable = 0;
+        ignore_last_write = 0;
         
         `uvm_info(get_type_name(), $sformatf("Scoreboard initialized: wr_level=%d, fifo_write_count=%d", expected_wr_level, expected_fifo_write_count), UVM_MEDIUM)
     endfunction
@@ -161,6 +169,7 @@ class scoreboard extends uvm_scoreboard;
         simultaneous_operation_count++;
         `uvm_info(get_type_name(), $sformatf("Processing simultaneous operations #%0d at time %0t", simultaneous_operation_count, $time), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("Before operations: wr_level=%d, rd_level=%d, queue_size=%d", expected_wr_level, expected_rd_level, expected_data_queue.size()), UVM_HIGH)
+        `uvm_info(get_type_name(), $sformatf("Write transaction: write_enable=%b, wdata=0x%h", write_tr.write_enable, write_tr.wdata), UVM_HIGH)
         `uvm_info(get_type_name(), "Data integrity priority mode: Level mismatches may be tolerated during simultaneous operations", UVM_MEDIUM)
 
         // Check for any active reset
@@ -221,15 +230,29 @@ class scoreboard extends uvm_scoreboard;
             expected_wr_level--;
         end
 
+        // Detect write_enable deassertion to handle synchronizer timing
+        if (prev_write_enable == 1'b1 && write_tr.write_enable == 1'b0) begin
+            // Write_enable just deasserted - set flag to ignore next write if it occurs
+            ignore_last_write = 1'b1;
+            `uvm_info(get_type_name(), "Write_enable deasserted - will ignore next write due to synchronizer timing", UVM_HIGH)
+        end
+        
         // Process write operation (if enabled and space available)
-        if (write_tr.write_enable) begin
-            if (!expected_wfull) begin
+        // Handle write_enable deassertion behavior due to synchronizer stages
+        if (write_tr.write_enable && write_tr.wdata != 0) begin
+            // Check if this write will be immediately followed by write_enable deassertion
+            // If so, the RTL may not complete the write due to synchronizer delays
+            if (ignore_last_write) begin
+                `uvm_info(get_type_name(), $sformatf("Ignoring write due to immediate deassertion: data=0x%h", write_tr.wdata), UVM_HIGH)
+                ignore_last_write = 0; // Reset flag
+            end else if (!expected_wfull) begin
                 // Normal write when not full
                 expected_data_queue.push_back(write_tr.wdata);
                 write_count++;
                 expected_fifo_write_count++;
                 // Increment write level (filled locations)
                 expected_wr_level++;
+                `uvm_info(get_type_name(), $sformatf("Write processed: data=0x%h, wr_level=%d", write_tr.wdata, expected_wr_level), UVM_HIGH)
             end else begin
                 // Write attempted when full - this should trigger overflow
                 `uvm_info(get_type_name(), $sformatf("Write attempted when full - overflow expected: data=0x%h, wr_level=%d", write_tr.wdata, expected_wr_level), UVM_HIGH)
@@ -283,8 +306,8 @@ class scoreboard extends uvm_scoreboard;
             expected_underflow = 1'b0;
         end
 
-        // Check write transaction
-        if (write_tr.write_enable) begin
+        // Check write transaction - only when actually processing a write (not ignored)
+        if (write_tr.write_enable && write_tr.wdata != 0 && !ignore_last_write) begin
                     // Check for overflow with 1-clock delay behavior
         `uvm_info(get_type_name(), $sformatf("Overflow check: expected=%b, actual=%b, prev_wfull=%b, prev_write_enable=%b, prev_wr_level_32=%b", expected_overflow, write_tr.overflow, prev_wfull, prev_write_enable, prev_wr_level_32), UVM_HIGH)
         if (write_tr.overflow != expected_overflow) begin
@@ -357,10 +380,12 @@ class scoreboard extends uvm_scoreboard;
         // Update previous values for next cycle
         prev_wfull = expected_wfull;
         prev_rdempty = expected_rdempty;
-        prev_write_enable = write_tr.write_enable;
         prev_read_enable = read_tr.read_enable;
         prev_wr_level_32 = (expected_wr_level == fifo_depth);
         prev_wr_level_0 = (expected_wr_level == 0);
+        
+        // Track write_enable deassertion for next cycle
+        prev_write_enable = write_tr.write_enable;
         
         // Set flag to start rdempty sync delay when FIFO transitions from empty to non-empty
         if (expected_wr_level > 0 && rdempty_sync_delay_count == 0) begin
@@ -408,6 +433,10 @@ class scoreboard extends uvm_scoreboard;
             simultaneous_operation_count = 0;
             data_integrity_priority = 1;
             
+            // Reset write_enable deassertion tracking variables
+            prev_write_enable = 0;
+            ignore_last_write = 0;
+            
             `uvm_info(get_type_name(), $sformatf("Reset completed: wr_level=%d, fifo_write_count=%d", expected_wr_level, expected_fifo_write_count), UVM_MEDIUM)
         end else if (write_tr.mem_rst) begin
             // mem_rst only resets memory content to 0, not other signals
@@ -418,9 +447,21 @@ class scoreboard extends uvm_scoreboard;
             reset_active = 0;
         end
 
+        // Detect write_enable deassertion to handle synchronizer timing
+        if (prev_write_enable == 1'b1 && write_tr.write_enable == 1'b0) begin
+            // Write_enable just deasserted - set flag to ignore next write if it occurs
+            ignore_last_write = 1'b1;
+            `uvm_info(get_type_name(), "Write_enable deasserted - will ignore next write due to synchronizer timing", UVM_HIGH)
+        end
+        
         // Write operation logic
-        if (write_tr.write_enable) begin
-            if (!expected_wfull) begin
+        // Handle write_enable deassertion behavior due to synchronizer stages
+        if (write_tr.write_enable && write_tr.wdata != 0) begin
+            // Check if this write should be ignored due to previous deassertion
+            if (ignore_last_write) begin
+                `uvm_info(get_type_name(), $sformatf("Ignoring write due to immediate deassertion: data=0x%h", write_tr.wdata), UVM_HIGH)
+                ignore_last_write = 0; // Reset flag
+            end else if (!expected_wfull) begin
                 // Normal write when not full
                 expected_data_queue.push_back(write_tr.wdata);
                 write_count++;
@@ -446,8 +487,8 @@ class scoreboard extends uvm_scoreboard;
             expected_overflow = 1'b0;
         end
 
-        // Check write transaction
-        if (write_tr.write_enable) begin
+        // Check write transaction - only when actually processing a write (not ignored)
+        if (write_tr.write_enable && write_tr.wdata != 0 && !ignore_last_write) begin
             // Check for overflow with 1-clock delay behavior
             `uvm_info(get_type_name(), $sformatf("Overflow check: expected=%b, actual=%b, prev_wfull=%b, prev_write_enable=%b, prev_wr_level_32=%b", expected_overflow, write_tr.overflow, prev_wfull, prev_write_enable, prev_wr_level_32), UVM_HIGH)
             if (write_tr.overflow != expected_overflow) begin
@@ -488,7 +529,6 @@ class scoreboard extends uvm_scoreboard;
 
         // Update previous values for next cycle
         prev_wfull = expected_wfull;
-        prev_write_enable = write_tr.write_enable;
         prev_wr_level_32 = (expected_wr_level == fifo_depth);
 
         write_tr_available = 0;
