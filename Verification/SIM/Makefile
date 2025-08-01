@@ -26,13 +26,15 @@ info:
 	@echo "  write_read_level_test  	----> to run the write_read_level_test.sv"
 	@echo "  faster_write_clock_test  	----> to run the faster_write_clock_test.sv"
 	@echo "  faster_read_clock_test  	----> to run the faster_read_clock_test.sv"
+	@echo "  strict_level_test  		----> to run the strict_level_test.sv (strict level checking)"
+	@echo "  data_integrity_focused_test  ----> to run the data_integrity_focused_test.sv (data integrity priority)"
 	@echo "  waveform   				----> to open the simvision"
 	@echo "  regression 				----> to run the regression & source the cmd and open the imc"
 	@echo "  clean      				----> to delete the previous xrun files and cov files"
 	@echo "/----------------------------------------------------------------------------------------//"
 
 # Default target that runs all tests
-all: base_test reset_test write_test read_test simultaneous_test random_test reset_write_read_test write_conditions_test read_conditions_test memory_access_test full_condition_test empty_condition_test almost_full_test almost_empty_test overflow_test underflow_test write_read_level_test faster_write_clock_test faster_read_clock_test waveform
+all: base_test reset_test write_test read_test simultaneous_test random_test reset_write_read_test write_conditions_test read_conditions_test memory_access_test full_condition_test empty_condition_test almost_full_test almost_empty_test overflow_test underflow_test write_read_level_test faster_write_clock_test faster_read_clock_test strict_level_test data_integrity_focused_test waveform
 
 # Base test case
 base_test:
@@ -129,6 +131,16 @@ faster_read_clock_test:
 	@echo "[makefile]  faster read clock test case is running"
 	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=faster_read_clock_test -uvmhome CDNS-1.1d
 	@echo "[makefile]  faster read clock test case run is completed successfully"
+
+strict_level_test:
+	@echo "[makefile]  strict level test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=strict_level_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  strict level test case run is completed successfully"
+
+data_integrity_focused_test:
+	@echo "[makefile]  data integrity focused test case is running"
+	xrun -access +rwc -f compile_list.f +UVM_TESTNAME=data_integrity_focused_test -uvmhome CDNS-1.1d
+	@echo "[makefile]  data integrity focused test case run is completed successfully"
 
 # regression
 regression:

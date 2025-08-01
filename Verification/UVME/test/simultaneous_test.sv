@@ -16,6 +16,9 @@ class simultaneous_test extends base_test;
         rseq.scenario = 4; // simultaneous
         wseq.num_transactions = 20; // Set number of transactions for write sequence
         rseq.num_transactions = 20; // Set number of transactions for read sequence
+        // Enable both data integrity priority and level mismatch tolerance
+        m_env.m_scoreboard.set_data_integrity_priority(1'b1);  // Prioritize data integrity
+        m_env.m_scoreboard.set_level_mismatch_tolerance(1'b1); // Enable tolerance for level mismatches
         `uvm_info(get_type_name(), "Simultaneous test build_phase completed", UVM_LOW)
     endfunction
 

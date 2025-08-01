@@ -53,5 +53,9 @@ import uvm_pkg::*;
 `include "./../UVME/test/faster_write_clock_test.sv"
 `include "./../UVME/test/faster_read_clock_test.sv"
 
+// Data integrity focused test cases
+`include "./../UVME/test/strict_level_test.sv"
+`include "./../UVME/test/data_integrity_focused_test.sv"
+
 
 endpackage

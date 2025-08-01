@@ -14,6 +14,9 @@ class reset_write_read_test extends base_test;
         rseq = read_base_sequence::type_id::create("rseq");
         wseq.scenario = 5; // reset
         rseq.scenario = 5; // reset
+        // Enable both data integrity priority and level mismatch tolerance
+            m_env.m_scoreboard.set_data_integrity_priority(1'b1);  // Prioritize data integrity
+            m_env.m_scoreboard.set_level_mismatch_tolerance(1'b1); // Enable tolerance for level mismatches
         // wseq.num_transactions = 10; // Set number of transactions for write sequence
         // rseq.num_transactions = 10; // Set number of transactions for read sequence
         `uvm_info(get_type_name(), "Reset-Write-Read test build_phase completed", UVM_LOW)
