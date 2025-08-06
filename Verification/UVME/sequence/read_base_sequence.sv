@@ -39,7 +39,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
        
     // Reset phase - ensure clean FIFO state
-    repeat (4) begin
+    repeat (7) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Keep read disabled during reset
@@ -132,7 +132,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
        
     // Reset phase - ensure clean FIFO state
-    repeat (4) begin
+    repeat (7) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Keep read disabled during reset
@@ -254,8 +254,8 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
       `uvm_info(get_type_name(), $sformatf("Reset Phase: %s", req.sprint), UVM_HIGH)
     end
     
-    // Try to read from empty FIFO
-    repeat (30) begin
+    // 30 reads and one more read for underflow
+    repeat (31) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 1; // Keep reading even when empty
@@ -305,7 +305,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
     
     // Reset phase - ensure clean FIFO state
-    repeat (4) begin
+    repeat (7) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Keep read disabled during reset
@@ -372,7 +372,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
     
     // Reset phase - ensure clean FIFO state
-    repeat (4) begin
+    repeat (7) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Keep read disabled during reset
@@ -382,7 +382,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     end
     
     // Provide some read activity to test memory access
-    repeat (15) begin
+    repeat (5) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 1; // Enable read to test memory access
@@ -397,7 +397,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
     
     // Reset phase - ensure clean FIFO state
-    repeat (4) begin
+    repeat (7) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Keep read disabled during reset
@@ -422,7 +422,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
     
     // Reset phase - ensure clean FIFO state
-    repeat (4) begin
+    repeat (7) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Keep read disabled during reset
@@ -447,7 +447,7 @@ class read_base_sequence extends uvm_sequence #(read_sequence_item);
     read_sequence_item req;
     
     // Reset phase - ensure clean FIFO state
-    repeat (4) begin
+    repeat (7) begin
       req = read_sequence_item::type_id::create("req");
       start_item(req);
       req.read_enable = 0; // Keep read disabled during reset

@@ -8,7 +8,7 @@ module async_fifo_top_tb;
   // Clock and reset signals
   logic wclk;
   logic rclk;
-  // logic hw_rst_n;
+  // logic hw_rst;
   // logic mem_rst;
 
   // Clock generation
@@ -41,7 +41,7 @@ module async_fifo_top_tb;
   ) dut (
     // Write side
     .wclk(wclk),
-    .hw_rst_n(wr_if.hw_rst_n),
+    .hw_rst(wr_if.hw_rst),
     .wdata(wr_if.wdata),
     .write_enable(wr_if.write_enable),
     .afull_value(wr_if.afull_value),
