@@ -47,7 +47,52 @@ class base_test extends uvm_test;
     // Default configuration: Enable data integrity priority and level mismatch tolerance
     m_env.m_scoreboard.set_data_integrity_priority(1'b1);
     m_env.m_scoreboard.set_level_mismatch_tolerance(1'b1);
+    
+    // Configure parameters based on test type
+    configure_scoreboard_parameters();
+    
     `uvm_info(get_type_name(), "Scoreboard configured for data integrity priority mode", UVM_MEDIUM)
+  endfunction
+  
+  // Function to configure scoreboard parameters based on test type
+  function void configure_scoreboard_parameters();
+    // Default parameters
+    int soft_reset_val = 3;  // Default SOFT_RESET value
+    int sync_stage_val = 2;  // Default SYNC_STAGE value
+    
+    // Override parameters based on test type
+    case (get_type_name())
+      "sync_stage_3_test": begin
+        sync_stage_val = 3;
+        `uvm_info(get_type_name(), "Configuring scoreboard for SYNC_STAGE=3", UVM_MEDIUM)
+      end
+      "soft_reset_test": begin
+        soft_reset_val = 3;
+        `uvm_info(get_type_name(), "Configuring scoreboard for SOFT_RESET=3", UVM_MEDIUM)
+      end
+      "soft_reset_test_0": begin
+        soft_reset_val = 0;
+        `uvm_info(get_type_name(), "Configuring scoreboard for SOFT_RESET=0", UVM_MEDIUM)
+      end
+      "soft_reset_test_1": begin
+        soft_reset_val = 1;
+        `uvm_info(get_type_name(), "Configuring scoreboard for SOFT_RESET=1", UVM_MEDIUM)
+      end
+      "soft_reset_test_2": begin
+        soft_reset_val = 2;
+        `uvm_info(get_type_name(), "Configuring scoreboard for SOFT_RESET=2", UVM_MEDIUM)
+      end
+      default: begin
+        // Use default values
+        `uvm_info(get_type_name(), "Using default scoreboard parameters", UVM_MEDIUM)
+      end
+    endcase
+    
+    // Set the parameters in the scoreboard
+    m_env.m_scoreboard.set_soft_reset_param(soft_reset_val);
+    m_env.m_scoreboard.set_sync_stage_param(sync_stage_val);
+    
+    `uvm_info(get_type_name(), $sformatf("Scoreboard parameters configured: SOFT_RESET=%0d, SYNC_STAGE=%0d", soft_reset_val, sync_stage_val), UVM_MEDIUM)
   endfunction
   
   // Function to get and report data integrity statistics

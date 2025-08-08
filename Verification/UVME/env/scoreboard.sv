@@ -7,6 +7,10 @@ class scoreboard extends uvm_scoreboard;
     uvm_tlm_analysis_fifo #(write_sequence_item) write_fifo;
     uvm_tlm_analysis_fifo #(read_sequence_item)  read_fifo;
 
+    // Parameter configuration for different test scenarios
+    int SOFT_RESET_PARAM = 3;  // Default value, can be overridden
+    int SYNC_STAGE_PARAM = 2;  // Default value, can be overridden
+    
     // Data integrity checking
     bit [31:0] expected_data_queue[$];
     bit [31:0] expected_data;
@@ -323,10 +327,11 @@ class scoreboard extends uvm_scoreboard;
             expected_overflow = 1'b0;
         end
         
-        // rdempty logic with synchronization delay
+        // rdempty logic with synchronization delay based on SYNC_STAGE
         if (expected_wr_level == 0) begin
-            // FIFO is actually empty, but rdempty deasserts after 2-clock sync delay
-            if (rdempty_sync_delay_count >= 2) begin
+            // FIFO is actually empty, but rdempty deasserts after sync delay based on SYNC_STAGE
+            int sync_delay = get_sync_delay();
+            if (rdempty_sync_delay_count >= sync_delay) begin
                 expected_rdempty = 1'b0;
                 rdempty_sync_delay_count = 0;
                 rdempty_should_deassert = 0;
@@ -654,10 +659,11 @@ class scoreboard extends uvm_scoreboard;
             end
 
             // Update status flags
-            // rdempty logic with synchronization delay
+            // rdempty logic with synchronization delay based on SYNC_STAGE
             if (expected_wr_level == 0) begin
-                // FIFO is actually empty, but rdempty deasserts after 2-clock sync delay
-                if (rdempty_sync_delay_count >= 2) begin
+                // FIFO is actually empty, but rdempty deasserts after sync delay based on SYNC_STAGE
+                int sync_delay = get_sync_delay();
+                if (rdempty_sync_delay_count >= sync_delay) begin
                     expected_rdempty = 1'b0;
                     rdempty_sync_delay_count = 0;
                     rdempty_should_deassert = 0;
@@ -780,6 +786,10 @@ class scoreboard extends uvm_scoreboard;
     function void report_phase(uvm_phase phase);
         super.report_phase(phase);
         `uvm_info(get_type_name(), $sformatf("Scoreboard Report:"), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("  Configuration Parameters:"), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("    SOFT_RESET: %0d", SOFT_RESET_PARAM), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("    SYNC_STAGE: %0d", SYNC_STAGE_PARAM), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("    Sync Delay: %0d clock cycles", get_sync_delay()), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Write transactions: %d", write_count), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Read transactions: %d", read_count), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Simultaneous operations: %d", simultaneous_operation_count), UVM_LOW)
@@ -833,5 +843,31 @@ class scoreboard extends uvm_scoreboard;
         total_ops = write_count + read_count;
         sim_ops = simultaneous_operation_count;
         errors = error_count;
+    endfunction
+    
+    // Function to configure SOFT_RESET parameter
+    function void set_soft_reset_param(int value);
+        SOFT_RESET_PARAM = value;
+        `uvm_info(get_type_name(), $sformatf("SOFT_RESET parameter set to: %0d", SOFT_RESET_PARAM), UVM_MEDIUM)
+    endfunction
+    
+    // Function to configure SYNC_STAGE parameter
+    function void set_sync_stage_param(int value);
+        SYNC_STAGE_PARAM = value;
+        `uvm_info(get_type_name(), $sformatf("SYNC_STAGE parameter set to: %0d", SYNC_STAGE_PARAM), UVM_MEDIUM)
+    endfunction
+    
+    // Function to get current parameter values
+    function void get_parameters(output int soft_reset, output int sync_stage);
+        soft_reset = SOFT_RESET_PARAM;
+        sync_stage = SYNC_STAGE_PARAM;
+    endfunction
+    
+    // Function to calculate synchronization delay based on SYNC_STAGE
+    function int get_sync_delay();
+        // SYNC_STAGE determines the number of flip-flops in the synchronizer
+        // For SYNC_STAGE=2: 2 flip-flops = 2 clock cycles delay
+        // For SYNC_STAGE=3: 3 flip-flops = 3 clock cycles delay
+        return SYNC_STAGE_PARAM;
     endfunction
 endclass

@@ -99,6 +99,20 @@ Added specific cover points for missing scenarios:
 - Added generic `test` target with parameter support
 - Added parameter configuration help
 
+### 5. Scoreboard Parameter Support
+**File**: `Verification/UVME/env/scoreboard.sv`
+**Changes**:
+- Added parameter configuration variables for SOFT_RESET and SYNC_STAGE
+- Added functions to set and get parameter values
+- Updated synchronization delay logic to use dynamic SYNC_STAGE values
+- Enhanced reporting to show parameter configuration
+- Added automatic parameter configuration based on test type
+
+**File**: `Verification/UVME/test/base_test.sv`
+**Changes**:
+- Added automatic scoreboard parameter configuration based on test type
+- Enhanced scoreboard setup for different test scenarios
+
 ## Expected Coverage Improvements
 
 ### Code Coverage
