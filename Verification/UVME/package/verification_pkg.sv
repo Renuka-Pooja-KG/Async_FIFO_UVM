@@ -43,7 +43,7 @@ import uvm_pkg::*;
 `include "./../UVME/test/write_conditions_test.sv"
 `include "./../UVME/test/read_conditions_test.sv"
 `include "./../UVME/test/memory_access_test.sv"
-`include "./../UVME/test/full_condition_test.sv"
+`include "./../UVME/test/full_condition_test.sv"ß
 `include "./../UVME/test/empty_condition_test.sv"
 `include "./../UVME/test/almost_full_test.sv"
 `include "./../UVME/test/almost_empty_test.sv"
@@ -52,6 +52,14 @@ import uvm_pkg::*;
 `include "./../UVME/test/write_read_level_test.sv"
 `include "./../UVME/test/faster_write_clock_test.sv"
 `include "./../UVME/test/faster_read_clock_test.sv"
+`include "./../UVME/test/sync_stage_3_test.sv"
+`include "./../UVME/test/soft_reset_test.sv"
+`include "./../UVME/test/soft_reset_test_0.sv"
+`include "./../UVME/test/soft_reset_test_1.sv"
+`include "./../UVME/test/soft_reset_test_2.sv"
+`include "./../UVME/test/fifo_level_coverage_test.sv"
+`include "./../UVME/test/read_enable_coverage_test.sv"
+`include "./../UVME/test/comprehensive_coverage_test.sv"
 
 // Data integrity focused test cases
 `include "./../UVME/test/strict_level_test.sv"
