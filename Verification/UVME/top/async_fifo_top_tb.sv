@@ -8,8 +8,6 @@ module async_fifo_top_tb;
   // Clock and reset signals
   logic wclk;
   logic rclk;
-  // logic hw_rst_n;
-  // logic mem_rst;
 
   // Clock generation
   initial wclk = 0;
@@ -25,19 +23,19 @@ module async_fifo_top_tb;
     .rclk(rclk)
   );
 
-  // DUT instantiation
+  // DUT instantiation with default parameters
+  // Parameters can be overridden using +define+ command line options
   async_fifo_int_mem #(
     .DATA_WIDTH(32),
     .ADDRESS_WIDTH(5),
-    //.DEPTH(32),
-    .SOFT_RESET(3),
+    .SOFT_RESET(`ifdef SOFT_RESET_VAL `SOFT_RESET_VAL `else 3 `endif),
     .POWER_SAVE (1),
     .STICKY_ERROR(0),
     .RESET_MEM(1),
     .PIPE_WRITE(0),
     .DEBUG_ENABLE(1),
     .PIPE_READ(0),
-    .SYNC_STAGE(2)
+    .SYNC_STAGE(`ifdef SYNC_STAGE_VAL `SYNC_STAGE_VAL `else 2 `endif)
   ) dut (
     // Write side
     .wclk(wclk),
@@ -75,6 +73,7 @@ module async_fifo_top_tb;
     $shm_open("wave.shm");
     $shm_probe("AS");
   end
+  
   // Start UVM
   initial begin
     // Start UVM

@@ -7,14 +7,20 @@ class read_coverage extends uvm_subscriber #(read_sequence_item);
     option.name = "read_cg";
     option.comment = "Read coverage group";
 
-
     read_enable_cp: coverpoint cov_item.read_enable {
       bins zero = {0};
       bins one = {1};
     }
 
     read_data_cp: coverpoint cov_item.read_data {
-        option.auto_bin_max = 32;
+        // Simple, practical bins for 32-bit data - 8 meaningful bins
+       // bins zero = {32'h00000000};           // Zero value
+       // bins all_ones = {32'hFFFFFFFF};       // All ones
+        bins low_values = {[32'h00000000:32'h000000FF]};     // Low byte values
+        bins mid_values = {[32'h00000100:32'h00FFFFFF]};     // Mid range values
+        bins high_values = {[32'h01000000:32'hFFFFFFFF]};    // High range values
+        //bins alternating = {32'h55555555, 32'hAAAAAAAA};     // Alternating patterns
+        bins others = default;                               // Catch any remaining values
     }
 
     aempty_value_cp: coverpoint cov_item.aempty_value {
@@ -50,9 +56,22 @@ class read_coverage extends uvm_subscriber #(read_sequence_item);
       bins full = {32};
     }
 
+    // Enhanced cross coverage for better functional coverage
     cross_read_enable_read_data: cross read_enable_cp, read_data_cp {
-    //  ignore_bins read_enable_one_read_data_zero = binsof(read_enable_cp.one) && binsof(read_data_cp);
       ignore_bins read_enable_zero_read_data_one = binsof(read_enable_cp.zero) && binsof(read_data_cp);
+    }
+    
+    // New cross coverage for FIFO level scenarios
+    cross_read_enable_rd_level: cross read_enable_cp, rd_level_cp;
+    cross_read_enable_rdempty: cross read_enable_cp, rdempty_cp;
+    cross_rd_level_rd_fifo_read_count: cross rd_level_cp, rd_fifo_read_count_cp;
+    
+    // Coverage for specific scenarios that were missing
+    read_enable_rdempty_scenario: coverpoint {cov_item.read_enable, cov_item.rdempty} {
+      bins read_enable_1_rdempty_0 = {2'b10};  // Read enabled, FIFO not empty
+      bins read_enable_1_rdempty_1 = {2'b11};  // Read enabled, FIFO empty
+      bins read_enable_0_rdempty_0 = {2'b00};  // Read disabled, FIFO not empty
+      bins read_enable_0_rdempty_1 = {2'b01};  // Read disabled, FIFO empty
     }
 
   endgroup: read_cg
@@ -71,9 +90,6 @@ class read_coverage extends uvm_subscriber #(read_sequence_item);
     cov_item.copy(t);
     read_cg.sample();
     count++;
-    // my_read_cg.sample(
-    //   t.read_enable, t.aempty_value, t.rdempty, t.rd_almost_empty, t.underflow, t.rd_level
-    // );
   endfunction
 
   virtual function void extract_phase(uvm_phase phase);
