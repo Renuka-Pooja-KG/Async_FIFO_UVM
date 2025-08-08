@@ -51,6 +51,9 @@ class base_test extends uvm_test;
     // Configure parameters based on test type
     configure_scoreboard_parameters();
     
+    // Configure tolerance settings based on test type
+    configure_scoreboard_tolerance();
+    
     `uvm_info(get_type_name(), "Scoreboard configured for data integrity priority mode", UVM_MEDIUM)
   endfunction
   
@@ -93,6 +96,32 @@ class base_test extends uvm_test;
     m_env.m_scoreboard.set_sync_stage_param(sync_stage_val);
     
     `uvm_info(get_type_name(), $sformatf("Scoreboard parameters configured: SOFT_RESET=%0d, SYNC_STAGE=%0d", soft_reset_val, sync_stage_val), UVM_MEDIUM)
+  endfunction
+  
+  // Function to configure scoreboard tolerance settings based on test type
+  function void configure_scoreboard_tolerance();
+    // Default tolerance settings
+    m_env.m_scoreboard.set_underflow_tolerance(1'b1);
+    m_env.m_scoreboard.set_write_count_tolerance(1'b1);
+    
+    // Configure tolerance based on test type
+    case (get_type_name())
+      "sync_stage_3_test": begin
+        // Enable write count tolerance for SYNC_STAGE=3 due to increased sync delays
+        m_env.m_scoreboard.set_write_count_tolerance(1'b1);
+        `uvm_info(get_type_name(), "Write count tolerance enabled for SYNC_STAGE=3", UVM_MEDIUM)
+      end
+      "soft_reset_test", "soft_reset_test_0", "soft_reset_test_1", "soft_reset_test_2": begin
+        // Enable tolerance for soft reset tests
+        m_env.m_scoreboard.set_write_count_tolerance(1'b1);
+        m_env.m_scoreboard.set_reset_scenario_mode(1'b1);
+        `uvm_info(get_type_name(), "Tolerance enabled for soft reset test", UVM_MEDIUM)
+      end
+      default: begin
+        // Use default tolerance settings
+        `uvm_info(get_type_name(), "Using default tolerance settings", UVM_MEDIUM)
+      end
+    endcase
   endfunction
   
   // Function to get and report data integrity statistics

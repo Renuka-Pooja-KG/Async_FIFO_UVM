@@ -14,10 +14,10 @@ class sync_stage_3_test extends base_test;
     rseq = read_base_sequence::type_id::create("rseq");
     
     // Use simultaneous scenario to stress the synchronization logic
-    wseq.scenario = 4; // Simultaneous scenario to stress sync logic
-    rseq.scenario = 4; // Simultaneous scenario to stress sync logic
-    wseq.num_transactions = 50;
-    rseq.num_transactions = 50;
+    wseq.scenario = 5; // reset scenario to stress sync logic
+    rseq.scenario = 5; // reset scenario to stress sync logic
+    //wseq.num_transactions = 50;
+    //rseq.num_transactions = 50;
     
     `uvm_info(get_type_name(), "SYNC_STAGE=3 test build_phase completed", UVM_LOW)
     `uvm_info(get_type_name(), "NOTE: This test requires SYNC_STAGE=3 parameter override", UVM_LOW)

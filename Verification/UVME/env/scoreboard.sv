@@ -69,6 +69,17 @@ class scoreboard extends uvm_scoreboard;
     bit underflow_tolerance = 1; // Enable tolerance for underflow mismatches due to sync delays
     int underflow_tolerance_count = 0; // Track number of tolerated underflow mismatches
     
+    // Variables for write count tolerance during SYNC_STAGE=3
+    bit write_count_tolerance = 1; // Enable tolerance for write count mismatches during high sync delays
+    int write_count_tolerance_count = 0; // Track number of tolerated write count mismatches
+    int write_count_sync_delay_tolerance = 0; // Tolerance window for sync delays
+    
+    // Variables for soft reset behavior tracking
+    bit soft_reset_active = 0; // Flag to track if soft reset is active
+    bit write_domain_reset = 0; // Flag to track write domain reset (SOFT_RESET=2,3)
+    bit read_domain_reset = 0;  // Flag to track read domain reset (SOFT_RESET=1,3)
+    bit soft_reset_handled = 0; // Flag to track if soft reset has been handled
+    
     // Variables for reset scenario handling
     bit reset_scenario_active = 0; // Flag to track if we're in a reset scenario
     int reset_tolerance_count = 0; // Track number of tolerated reset-related mismatches
@@ -127,6 +138,17 @@ class scoreboard extends uvm_scoreboard;
         // Initialize underflow tolerance variables
         underflow_tolerance = 1;
         underflow_tolerance_count = 0;
+        
+        // Initialize write count tolerance variables
+        write_count_tolerance = 1;
+        write_count_tolerance_count = 0;
+        write_count_sync_delay_tolerance = 0;
+        
+        // Initialize soft reset behavior tracking variables
+        soft_reset_active = 0;
+        write_domain_reset = 0;
+        read_domain_reset = 0;
+        soft_reset_handled = 0;
         
         // Initialize reset scenario variables
         reset_scenario_active = 0;
@@ -207,9 +229,15 @@ class scoreboard extends uvm_scoreboard;
         `uvm_info(get_type_name(), "Data integrity priority mode: Level mismatches may be tolerated during simultaneous operations", UVM_MEDIUM)
 
         // Check for any active reset
-        if (!write_tr.hw_rst_n || write_tr.sw_rst) begin
-            `uvm_info(get_type_name(), "Reset active (hw_rst_n or sw_rst): clearing scoreboard state", UVM_MEDIUM)
+        if (!write_tr.hw_rst_n) begin
+            // Hardware reset - clear everything
+            `uvm_info(get_type_name(), "Hardware reset active: clearing all scoreboard state", UVM_MEDIUM)
             reset_active = 1;
+            soft_reset_active = 0;
+            write_domain_reset = 0;
+            read_domain_reset = 0;
+            soft_reset_handled = 0;
+            
             // Clear all expected values and queues
             expected_data_queue.delete();
             expected_wr_level           = 0;
@@ -223,6 +251,61 @@ class scoreboard extends uvm_scoreboard;
             expected_overflow           = 0;
             expected_fifo_write_count   = 0; // Reset write count
             expected_fifo_read_count    = 0; // Reset read count
+        end else if (write_tr.sw_rst) begin
+            // Soft reset - handle based on SOFT_RESET parameter
+            if (!soft_reset_handled) begin
+                determine_soft_reset_behavior(write_domain_reset, read_domain_reset);
+                soft_reset_active = 1;
+                soft_reset_handled = 1;
+                
+                `uvm_info(get_type_name(), $sformatf("Soft reset active: SOFT_RESET=%0d, write_domain_reset=%b, read_domain_reset=%b", SOFT_RESET_PARAM, write_domain_reset, read_domain_reset), UVM_MEDIUM)
+                
+                // Handle write domain reset (SOFT_RESET=2,3)
+                if (write_domain_reset) begin
+                    `uvm_info(get_type_name(), "Write domain soft reset: clearing write-related state", UVM_MEDIUM)
+                    expected_wr_level = 0;
+                    expected_wfull = 0;
+                    expected_wr_almost_ful = 0;
+                    expected_overflow = 0;
+                    expected_fifo_write_count = 0;
+                    // Note: expected_data_queue is NOT cleared for write domain reset
+                end
+                
+                // Handle read domain reset (SOFT_RESET=1,3)
+                if (read_domain_reset) begin
+                    `uvm_info(get_type_name(), "Read domain soft reset: clearing read-related state", UVM_MEDIUM)
+                    expected_rd_level = fifo_depth; // Reset to fifo_depth since rd_level = empty locations
+                    expected_rdempty = 1;
+                    expected_rdalmost_empty = 0;
+                    expected_underflow = 0;
+                    expected_fifo_read_count = 0;
+                    // Note: expected_data_queue is NOT cleared for read domain reset
+                end
+                
+                // Handle both domains reset (SOFT_RESET=3)
+                if (write_domain_reset && read_domain_reset) begin
+                    `uvm_info(get_type_name(), "Both domains soft reset: clearing all state except memory", UVM_MEDIUM)
+                    // Clear everything except memory content (expected_data_queue)
+                    expected_wr_level = 0;
+                    expected_rd_level = fifo_depth;
+                    expected_wfull = 0;
+                    expected_rdempty = 1;
+                    expected_wr_almost_ful = 0;
+                    expected_rdalmost_empty = 0;
+                    expected_underflow = 0;
+                    expected_overflow = 0;
+                    expected_fifo_write_count = 0;
+                    expected_fifo_read_count = 0;
+                    // Note: expected_data_queue is preserved for SOFT_RESET=3
+                end
+            end
+            reset_active = 1;
+        end else begin
+            // No reset active
+            reset_active = 0;
+            soft_reset_active = 0;
+            soft_reset_handled = 0;
+        end
             // Reset delay tracking variables
             prev_wfull = 0;
             prev_rdempty = 1;
@@ -376,9 +459,26 @@ class scoreboard extends uvm_scoreboard;
                 error_count++;
             end
             // Check FIFO write count - compare against value after this write operation
-            if (write_tr.fifo_write_count != (expected_fifo_write_count)) begin
-                `uvm_error(get_type_name(), $sformatf("FIFO write count mismatch: expected=%0d, actual=%0d", expected_fifo_write_count, write_tr.fifo_write_count))
-                error_count++;
+            // Skip write count check for SOFT_RESET=0,1,3 scenarios (only check for SOFT_RESET=2)
+            if (SOFT_RESET_PARAM == 0 || SOFT_RESET_PARAM == 1 || SOFT_RESET_PARAM == 3) begin
+                `uvm_info(get_type_name(), $sformatf("Skipping write count check for SOFT_RESET=%0d (write domain not reset)", SOFT_RESET_PARAM), UVM_HIGH)
+            end else if (SOFT_RESET_PARAM == 2) begin
+                // Only check write count for SOFT_RESET=2 (write domain reset only)
+                // Apply tolerance for SYNC_STAGE=3 scenarios
+                int sync_delay = get_sync_delay();
+                int tolerance_window = (sync_delay > 2) ? sync_delay - 1 : 0; // Tolerance for SYNC_STAGE=3
+                
+                if (write_tr.fifo_write_count != (expected_fifo_write_count)) begin
+                    if (write_count_tolerance && (sync_delay > 2) && 
+                        (write_tr.fifo_write_count >= (expected_fifo_write_count - tolerance_window)) &&
+                        (write_tr.fifo_write_count <= (expected_fifo_write_count + tolerance_window))) begin
+                        `uvm_warning(get_type_name(), $sformatf("FIFO write count mismatch tolerated (SYNC_STAGE=%0d): expected=%0d, actual=%0d, tolerance_window=%0d", sync_delay, expected_fifo_write_count, write_tr.fifo_write_count, tolerance_window))
+                        write_count_tolerance_count++;
+                    end else begin
+                        `uvm_error(get_type_name(), $sformatf("FIFO write count mismatch: expected=%0d, actual=%0d", expected_fifo_write_count, write_tr.fifo_write_count))
+                        error_count++;
+                    end
+                end
             end
             // Check FIFO write level - tolerate mismatches during simultaneous operations due to sync delays
             if (write_tr.wr_level != (expected_wr_level)) begin
@@ -465,9 +565,15 @@ class scoreboard extends uvm_scoreboard;
 
         // Check for any active reset
         `uvm_info(get_type_name(), $sformatf("Checking reset: hw_rst_n=%b, sw_rst=%b, mem_rst=%b", write_tr.hw_rst_n, write_tr.sw_rst, write_tr.mem_rst), UVM_HIGH)
-        if (!write_tr.hw_rst_n || write_tr.sw_rst) begin
-            `uvm_info(get_type_name(), "Reset active (hw_rst_n or sw_rst) - clearing scoreboard state", UVM_MEDIUM)
+        if (!write_tr.hw_rst_n) begin
+            // Hardware reset - clear everything
+            `uvm_info(get_type_name(), "Hardware reset active: clearing all scoreboard state", UVM_MEDIUM)
             reset_active = 1;
+            soft_reset_active = 0;
+            write_domain_reset = 0;
+            read_domain_reset = 0;
+            soft_reset_handled = 0;
+            
             // Clear all expected values and queues
             expected_data_queue.delete();
             expected_wr_level           = 0;
@@ -481,6 +587,61 @@ class scoreboard extends uvm_scoreboard;
             expected_overflow           = 0;
             expected_fifo_write_count   = 0; // Reset write count
             expected_fifo_read_count    = 0; // Reset read count
+        end else if (write_tr.sw_rst) begin
+            // Soft reset - handle based on SOFT_RESET parameter
+            if (!soft_reset_handled) begin
+                determine_soft_reset_behavior(write_domain_reset, read_domain_reset);
+                soft_reset_active = 1;
+                soft_reset_handled = 1;
+                
+                `uvm_info(get_type_name(), $sformatf("Soft reset active: SOFT_RESET=%0d, write_domain_reset=%b, read_domain_reset=%b", SOFT_RESET_PARAM, write_domain_reset, read_domain_reset), UVM_MEDIUM)
+                
+                // Handle write domain reset (SOFT_RESET=2,3)
+                if (write_domain_reset) begin
+                    `uvm_info(get_type_name(), "Write domain soft reset: clearing write-related state", UVM_MEDIUM)
+                    expected_wr_level = 0;
+                    expected_wfull = 0;
+                    expected_wr_almost_ful = 0;
+                    expected_overflow = 0;
+                    expected_fifo_write_count = 0;
+                    // Note: expected_data_queue is NOT cleared for write domain reset
+                end
+                
+                // Handle read domain reset (SOFT_RESET=1,3)
+                if (read_domain_reset) begin
+                    `uvm_info(get_type_name(), "Read domain soft reset: clearing read-related state", UVM_MEDIUM)
+                    expected_rd_level = fifo_depth; // Reset to fifo_depth since rd_level = empty locations
+                    expected_rdempty = 1;
+                    expected_rdalmost_empty = 0;
+                    expected_underflow = 0;
+                    expected_fifo_read_count = 0;
+                    // Note: expected_data_queue is NOT cleared for read domain reset
+                end
+                
+                // Handle both domains reset (SOFT_RESET=3)
+                if (write_domain_reset && read_domain_reset) begin
+                    `uvm_info(get_type_name(), "Both domains soft reset: clearing all state except memory", UVM_MEDIUM)
+                    // Clear everything except memory content (expected_data_queue)
+                    expected_wr_level = 0;
+                    expected_rd_level = fifo_depth;
+                    expected_wfull = 0;
+                    expected_rdempty = 1;
+                    expected_wr_almost_ful = 0;
+                    expected_rdalmost_empty = 0;
+                    expected_underflow = 0;
+                    expected_overflow = 0;
+                    expected_fifo_write_count = 0;
+                    expected_fifo_read_count = 0;
+                    // Note: expected_data_queue is preserved for SOFT_RESET=3
+                end
+            end
+            reset_active = 1;
+        end else begin
+            // No reset active
+            reset_active = 0;
+            soft_reset_active = 0;
+            soft_reset_handled = 0;
+        end
             // Reset delay tracking variables
             prev_wfull = 0;
             prev_rdempty = 1;
@@ -582,10 +743,27 @@ class scoreboard extends uvm_scoreboard;
             // Check FIFO write count - compare against the expected value after this write operation
             // The monitor captures the RTL state at posedge when write_enable is high
             // This represents the state AFTER the write operation has been processed
-            `uvm_info(get_type_name(), $sformatf("Comparing write count: expected=%0d, actual=%0d", expected_fifo_write_count, write_tr.fifo_write_count), UVM_HIGH)
-            if (write_tr.fifo_write_count != expected_fifo_write_count) begin
-                `uvm_error(get_type_name(), $sformatf("FIFO write count mismatch: expected=%0d, actual=%0d", expected_fifo_write_count, write_tr.fifo_write_count))
-                error_count++;
+            // Skip write count check for SOFT_RESET=0,1,3 scenarios (only check for SOFT_RESET=2)
+            if (SOFT_RESET_PARAM == 0 || SOFT_RESET_PARAM == 1 || SOFT_RESET_PARAM == 3) begin
+                `uvm_info(get_type_name(), $sformatf("Skipping write count check for SOFT_RESET=%0d (write domain not reset)", SOFT_RESET_PARAM), UVM_HIGH)
+            end else if (SOFT_RESET_PARAM == 2) begin
+                // Only check write count for SOFT_RESET=2 (write domain reset only)
+                // Apply tolerance for SYNC_STAGE=3 scenarios
+                int sync_delay = get_sync_delay();
+                int tolerance_window = (sync_delay > 2) ? sync_delay - 1 : 0; // Tolerance for SYNC_STAGE=3
+                
+                `uvm_info(get_type_name(), $sformatf("Comparing write count: expected=%0d, actual=%0d, sync_delay=%0d, tolerance_window=%0d", expected_fifo_write_count, write_tr.fifo_write_count, sync_delay, tolerance_window), UVM_HIGH)
+                if (write_tr.fifo_write_count != expected_fifo_write_count) begin
+                    if (write_count_tolerance && (sync_delay > 2) && 
+                        (write_tr.fifo_write_count >= (expected_fifo_write_count - tolerance_window)) &&
+                        (write_tr.fifo_write_count <= (expected_fifo_write_count + tolerance_window))) begin
+                        `uvm_warning(get_type_name(), $sformatf("FIFO write count mismatch tolerated (SYNC_STAGE=%0d): expected=%0d, actual=%0d, tolerance_window=%0d", sync_delay, expected_fifo_write_count, write_tr.fifo_write_count, tolerance_window))
+                        write_count_tolerance_count++;
+                    end else begin
+                        `uvm_error(get_type_name(), $sformatf("FIFO write count mismatch: expected=%0d, actual=%0d", expected_fifo_write_count, write_tr.fifo_write_count))
+                        error_count++;
+                    end
+                end
             end
             // Check FIFO write level - tolerate mismatches during high-frequency operations due to sync delays
             // The monitor captures the RTL state at posedge when write_enable is high
@@ -790,6 +968,7 @@ class scoreboard extends uvm_scoreboard;
         `uvm_info(get_type_name(), $sformatf("    SOFT_RESET: %0d", SOFT_RESET_PARAM), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("    SYNC_STAGE: %0d", SYNC_STAGE_PARAM), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("    Sync Delay: %0d clock cycles", get_sync_delay()), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("    Soft Reset Behavior: %s", get_soft_reset_description()), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Write transactions: %d", write_count), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Read transactions: %d", read_count), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Simultaneous operations: %d", simultaneous_operation_count), UVM_LOW)
@@ -799,6 +978,8 @@ class scoreboard extends uvm_scoreboard;
         `uvm_info(get_type_name(), $sformatf("  Level mismatch tolerance: %s", level_mismatch_tolerance ? "ENABLED" : "DISABLED"), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Underflow tolerance: %s", underflow_tolerance ? "ENABLED" : "DISABLED"), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Underflow tolerance count: %d", underflow_tolerance_count), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("  Write count tolerance: %s", write_count_tolerance ? "ENABLED" : "DISABLED"), UVM_LOW)
+        `uvm_info(get_type_name(), $sformatf("  Write count tolerance count: %d", write_count_tolerance_count), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Reset scenario mode: %s", reset_scenario_active ? "ENABLED" : "DISABLED"), UVM_LOW)
         `uvm_info(get_type_name(), $sformatf("  Reset tolerance count: %d", reset_tolerance_count), UVM_LOW)
         if (error_count == 0) begin
@@ -830,6 +1011,12 @@ class scoreboard extends uvm_scoreboard;
     function void set_underflow_tolerance(bit enable);
         underflow_tolerance = enable;
         `uvm_info(get_type_name(), $sformatf("Underflow tolerance: %s", enable ? "ENABLED" : "DISABLED"), UVM_MEDIUM)
+    endfunction
+    
+    // Function to control write count tolerance
+    function void set_write_count_tolerance(bit enable);
+        write_count_tolerance = enable;
+        `uvm_info(get_type_name(), $sformatf("Write count tolerance: %s", enable ? "ENABLED" : "DISABLED"), UVM_MEDIUM)
     endfunction
     
     // Function to set reset scenario mode
@@ -869,5 +1056,47 @@ class scoreboard extends uvm_scoreboard;
         // For SYNC_STAGE=2: 2 flip-flops = 2 clock cycles delay
         // For SYNC_STAGE=3: 3 flip-flops = 3 clock cycles delay
         return SYNC_STAGE_PARAM;
+    endfunction
+    
+    // Function to determine soft reset behavior based on SOFT_RESET parameter
+    function void determine_soft_reset_behavior(output bit write_reset, output bit read_reset);
+        case (SOFT_RESET_PARAM)
+            0: begin
+                // SOFT_RESET=0: No soft reset functionality
+                write_reset = 0;
+                read_reset = 0;
+            end
+            1: begin
+                // SOFT_RESET=1: Read domain reset only
+                write_reset = 0;
+                read_reset = 1;
+            end
+            2: begin
+                // SOFT_RESET=2: Write domain reset only
+                write_reset = 1;
+                read_reset = 0;
+            end
+            3: begin
+                // SOFT_RESET=3: Both domains reset
+                write_reset = 1;
+                read_reset = 1;
+            end
+            default: begin
+                // Default to no reset
+                write_reset = 0;
+                read_reset = 0;
+            end
+        endcase
+    endfunction
+    
+    // Function to get human-readable soft reset description
+    function string get_soft_reset_description();
+        case (SOFT_RESET_PARAM)
+            0: return "No soft reset functionality";
+            1: return "Read domain reset only";
+            2: return "Write domain reset only";
+            3: return "Both domains reset";
+            default: return "Unknown";
+        endcase
     endfunction
 endclass

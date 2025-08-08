@@ -107,11 +107,18 @@ Added specific cover points for missing scenarios:
 - Updated synchronization delay logic to use dynamic SYNC_STAGE values
 - Enhanced reporting to show parameter configuration
 - Added automatic parameter configuration based on test type
+- **Added write count tolerance for SYNC_STAGE=3 scenarios**
+- **Added tolerance window calculation based on sync delay**
+- **Added write count check skipping for SOFT_RESET=0,1,3 scenarios**
+- **Added comprehensive soft reset behavior implementation based on RTL analysis**
+- **Added domain-specific reset handling (write domain, read domain, both domains)**
+- **Added soft reset behavior tracking and reporting**
 
 **File**: `Verification/UVME/test/base_test.sv`
 **Changes**:
 - Added automatic scoreboard parameter configuration based on test type
 - Enhanced scoreboard setup for different test scenarios
+- **Added tolerance configuration for SYNC_STAGE=3 and soft reset tests**
 
 ## Expected Coverage Improvements
 
