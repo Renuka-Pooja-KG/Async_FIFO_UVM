@@ -50,6 +50,8 @@ info:
 # Default target that runs all tests
 all: base_test reset_test write_only_test read_only_test simultaneous_test reset_write_read_test write_conditions_test read_conditions_test memory_access_test full_condition_test empty_condition_test almost_full_test almost_empty_test overflow_test underflow_test write_read_level_test random_test sync_stage_3_test soft_reset_test soft_reset_test_0 soft_reset_test_1 soft_reset_test_2 fifo_level_coverage_test read_enable_coverage_test comprehensive_coverage_test waveform
 
+new_test: sync_stage_3_test soft_reset_test_0 soft_reset_test_1 soft_reset_test_2 fifo_level_coverage_test read_enable_coverage_test comprehensive_coverage_test
+
 # Base test case
 base_test:
 	@echo "[makefile]  base test case is running"
