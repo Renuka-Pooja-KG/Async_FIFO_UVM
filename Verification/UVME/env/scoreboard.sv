@@ -306,60 +306,51 @@ class scoreboard extends uvm_scoreboard;
             soft_reset_active = 0;
             soft_reset_handled = 0;
         end
-            // Reset delay tracking variables
-            prev_wfull = 0;
-            prev_rdempty = 1;
-            prev_write_enable = 0;
-            prev_read_enable = 0;
-            prev_wr_level_32 = 0;
-            prev_wr_level_0 = 1;
-            rdempty_sync_delay_count = 0;
-            rdempty_should_deassert = 0;
-            
-            // Reset actual RTL state tracking variables
-            actual_prev_rdempty = 1;
-            actual_prev_wfull = 0;
-            use_actual_rtl_state = 1;
-            
-            // Reset data integrity prioritization variables
-            level_mismatch_tolerance = 1;
-            simultaneous_operation_count = 0;
-            data_integrity_priority = 1;
-            
-            write_tr_available = 0;
-            read_tr_available = 0;
-            return;
-        end else if (write_tr.mem_rst) begin
-            // mem_rst only resets memory content to 0, not other signals
-            // The scoreboard data queue represents memory content, so clear it
-            `uvm_info(get_type_name(), "mem_rst active: clearing memory content only", UVM_MEDIUM)
-            expected_data_queue.delete();
-            // DO NOT reset other signals - they remain unchanged
-        end else begin
-            reset_active = 0;
-        end
-
+        
+        // Reset delay tracking variables
+        prev_wfull = 0;
+        prev_rdempty = 1;
+        prev_write_enable = 0;
+        prev_read_enable = 0;
+        prev_wr_level_32 = 0;
+        prev_wr_level_0 = 1;
+        rdempty_sync_delay_count = 0;
+        rdempty_should_deassert = 0;
+        
+        // Reset actual RTL state tracking variables
+        actual_prev_rdempty = 1;
+        actual_prev_wfull = 0;
+        use_actual_rtl_state = 1;
+        
+        // Reset data integrity prioritization variables
+        level_mismatch_tolerance = 1;
+        simultaneous_operation_count = 0;
+        data_integrity_priority = 1;
+        
+        write_tr_available = 0;
+        read_tr_available = 0;
+        
         // Process read operation first (if enabled and data available)
         if (read_tr.read_enable && !reset_active && expected_data_queue.size() > 0) begin
             expected_data = expected_data_queue.pop_front();
             read_count++;
             
-                            // Skip data integrity check if write_enable just deasserted
-                if (skip_read_data_check) begin
+            // Skip data integrity check if write_enable just deasserted
+            if (skip_read_data_check) begin
                     `uvm_info(get_type_name(), $sformatf("Skipping read data integrity check due to write_enable deassertion: expected=0x%h, actual=0x%h", expected_data, read_tr.read_data), UVM_HIGH)
                     skip_read_data_check = 0; // Reset flag after skipping
                     skip_read_transaction_check = 1; // Skip read transaction checks
                     // Also skip read count increment and level updates if read was affected by timing
                     `uvm_info(get_type_name(), "Skipping read count and level updates due to write_enable deassertion", UVM_HIGH)
                 end else if (read_tr.read_data !== expected_data) begin
-                `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, read_tr.read_data))
-                error_count++;
-            end else begin
-                // Only update counts and levels if read was successful
-                expected_fifo_read_count++;
-                // Decrement write level (filled locations)
-                expected_wr_level--;
-            end
+                    `uvm_error(get_type_name(), $sformatf("Data integrity error: expected=0x%h, actual=0x%h", expected_data, read_tr.read_data))
+                    error_count++;
+                end else begin
+                    // Only update counts and levels if read was successful
+                    expected_fifo_read_count++;
+                    // Decrement write level (filled locations)
+                    expected_wr_level--;
+                end
         end
 
         // Detect write_enable deassertion to handle synchronizer timing
@@ -444,12 +435,12 @@ class scoreboard extends uvm_scoreboard;
 
         // Check write transaction - only when actually processing a write (not ignored)
         if (write_tr.write_enable && write_tr.wdata != 0 && !ignore_last_write) begin
-                    // Check for overflow with 1-clock delay behavior
-        `uvm_info(get_type_name(), $sformatf("Overflow check: expected=%b, actual=%b, prev_wfull=%b, prev_write_enable=%b, prev_wr_level_32=%b", expected_overflow, write_tr.overflow, prev_wfull, prev_write_enable, prev_wr_level_32), UVM_HIGH)
-        if (write_tr.overflow != expected_overflow) begin
-            `uvm_error(get_type_name(), $sformatf("Overflow mismatch: expected=%b, actual=%b, expected_wr_level=%d, prev_wfull=%b, prev_write_enable=%b, prev_wr_level_32=%b", expected_overflow, write_tr.overflow, expected_wr_level, prev_wfull, prev_write_enable, prev_wr_level_32))
-            error_count++;
-        end
+            // Check for overflow with 1-clock delay behavior
+            `uvm_info(get_type_name(), $sformatf("Overflow check: expected=%b, actual=%b, prev_wfull=%b, prev_write_enable=%b, prev_wr_level_32=%b", expected_overflow, write_tr.overflow, prev_wfull, prev_write_enable, prev_wr_level_32), UVM_HIGH)
+            if (write_tr.overflow != expected_overflow) begin
+                `uvm_error(get_type_name(), $sformatf("Overflow mismatch: expected=%b, actual=%b, expected_wr_level=%d, prev_wfull=%b, prev_write_enable=%b, prev_wr_level_32=%b", expected_overflow, write_tr.overflow, expected_wr_level, prev_wfull, prev_write_enable, prev_wr_level_32))
+                error_count++;
+            end
             if (write_tr.wfull != expected_wfull) begin
                 `uvm_error(get_type_name(), $sformatf("FIFO full state mismatch: expected=%b, actual=%b, expected_wr_level = %b", expected_wfull, write_tr.wfull, expected_wr_level))
                 error_count++;
@@ -648,44 +639,37 @@ class scoreboard extends uvm_scoreboard;
             soft_reset_active = 0;
             soft_reset_handled = 0;
         end
-            // Reset delay tracking variables
-            prev_wfull = 0;
-            prev_rdempty = 1;
-            prev_write_enable = 0;
-            prev_read_enable = 0;
-            prev_wr_level_32 = 0;
-            prev_wr_level_0 = 1;
-            rdempty_sync_delay_count = 0;
-            rdempty_should_deassert = 0;
-            
-            // Reset actual RTL state tracking variables
-            actual_prev_rdempty = 1;
-            actual_prev_wfull = 0;
-            use_actual_rtl_state = 1;
-            
-            // Reset data integrity prioritization variables
-            level_mismatch_tolerance = 1;
-            simultaneous_operation_count = 0;
-            data_integrity_priority = 1;
-            
-            // Reset underflow tolerance variables
-            underflow_tolerance = 1;
-            underflow_tolerance_count = 0;
-            
-            // Reset write_enable deassertion tracking variables
-            ignore_last_write = 0;
-            skip_read_data_check = 0;
-            skip_read_transaction_check = 0;
-            
-            `uvm_info(get_type_name(), $sformatf("Reset completed: wr_level=%d, fifo_write_count=%d", expected_wr_level, expected_fifo_write_count), UVM_MEDIUM)
-        end else if (write_tr.mem_rst) begin
-            // mem_rst only resets memory content to 0, not other signals
-            `uvm_info(get_type_name(), "mem_rst active: clearing memory content only", UVM_MEDIUM)
-            expected_data_queue.delete();
-            // DO NOT reset other signals - they remain unchanged
-        end else begin
-            reset_active = 0;
-        end
+        
+        // Reset delay tracking variables
+        prev_wfull = 0;
+        prev_rdempty = 1;
+        prev_write_enable = 0;
+        prev_read_enable = 0;
+        prev_wr_level_32 = 0;
+        prev_wr_level_0 = 1;
+        rdempty_sync_delay_count = 0;
+        rdempty_should_deassert = 0;
+        
+        // Reset actual RTL state tracking variables
+        actual_prev_rdempty = 1;
+        actual_prev_wfull = 0;
+        use_actual_rtl_state = 1;
+        
+        // Reset data integrity prioritization variables
+        level_mismatch_tolerance = 1;
+        simultaneous_operation_count = 0;
+        data_integrity_priority = 1;
+        
+        // Reset underflow tolerance variables
+        underflow_tolerance = 1;
+        underflow_tolerance_count = 0;
+        
+        // Reset write_enable deassertion tracking variables
+        ignore_last_write = 0;
+        skip_read_data_check = 0;
+        skip_read_transaction_check = 0;
+        
+        `uvm_info(get_type_name(), $sformatf("Reset completed: wr_level=%d, fifo_write_count=%d", expected_wr_level, expected_fifo_write_count), UVM_MEDIUM)
 
         // Detect write_enable deassertion to handle synchronizer timing
         if (prev_write_enable == 1'b1 && write_tr.write_enable == 1'b0) begin
@@ -919,29 +903,27 @@ class scoreboard extends uvm_scoreboard;
                 end
                             // COMMENTED OUT: Read count checks disabled
             /*
-                                            // COMMENTED OUT: Read count checks disabled
-                /*
-                if (read_tr.fifo_read_count != expected_fifo_read_count) begin
-                    if (level_mismatch_tolerance && data_integrity_priority) begin
-                        `uvm_warning(get_type_name(), $sformatf("FIFO read count mismatch tolerated (reset_sync_delay): expected=%0d, actual=%0d", expected_fifo_read_count, read_tr.fifo_read_count))
-                    end else begin
-                        `uvm_error(get_type_name(), $sformatf("FIFO read count mismatch: expected=%0d, actual=%0d", expected_fifo_read_count, read_tr.fifo_read_count))
-                        error_count++;
-                    end
+            if (read_tr.fifo_read_count != expected_fifo_read_count) begin
+                if (level_mismatch_tolerance && data_integrity_priority) begin
+                    `uvm_warning(get_type_name(), $sformatf("FIFO read count mismatch tolerated (reset_sync_delay): expected=%0d, actual=%0d", expected_fifo_read_count, read_tr.fifo_read_count))
+                end else begin
+                    `uvm_error(get_type_name(), $sformatf("FIFO read count mismatch: expected=%0d, actual=%0d", expected_fifo_read_count, read_tr.fifo_read_count))
+                    error_count++;
                 end
-                */
-                // Check FIFO read level - tolerate mismatches during high-frequency operations due to sync delays
-                // COMMENTED OUT: Read level checks disabled
-                /*
-                if (read_tr.rd_level != expected_rd_level) begin
-                    if (level_mismatch_tolerance && data_integrity_priority) begin
-                        `uvm_warning(get_type_name(), $sformatf("FIFO read level mismatch tolerated (sync_delay): expected=%0d, actual=%0d", expected_rd_level, read_tr.rd_level))
-                    end else begin
-                        `uvm_error(get_type_name(), $sformatf("FIFO read level mismatch: expected=%0d, actual=%0d", expected_rd_level, read_tr.rd_level))
-                        error_count++;
-                    end
+            end
+            */
+            // Check FIFO read level - tolerate mismatches during high-frequency operations due to sync delays
+            // COMMENTED OUT: Read level checks disabled
+            /*
+            if (read_tr.rd_level != expected_rd_level) begin
+                if (level_mismatch_tolerance && data_integrity_priority) begin
+                    `uvm_warning(get_type_name(), $sformatf("FIFO read level mismatch tolerated (sync_delay): expected=%0d, actual=%0d", expected_rd_level, read_tr.rd_level))
+                end else begin
+                    `uvm_error(get_type_name(), $sformatf("FIFO read level mismatch: expected=%0d, actual=%0d", expected_rd_level, read_tr.rd_level))
+                    error_count++;
                 end
-                */
+            end
+            */
             end
         end
 
