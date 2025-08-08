@@ -27,6 +27,9 @@ class comprehensive_coverage_test extends base_test;
     phase.raise_objection(this);
     `uvm_info(get_type_name(), "Comprehensive coverage test run_phase started", UVM_LOW)
     
+    // Configure scoreboard for test
+    configure_scoreboard_for_test();
+    
     // Phase 1: Basic functionality with all data patterns
     `uvm_info(get_type_name(), "Phase 1: Basic functionality", UVM_LOW)
     fork
@@ -81,6 +84,9 @@ class comprehensive_coverage_test extends base_test;
       wseq.start(m_env.m_write_agent.m_sequencer);
       rseq.start(m_env.m_read_agent.m_sequencer);
     join
+    
+    // Get and report data integrity statistics
+    report_data_integrity_stats();
     
     phase.drop_objection(this);
   endtask

@@ -27,6 +27,9 @@ class soft_reset_test extends base_test;
     phase.raise_objection(this);
     `uvm_info(get_type_name(), "Soft reset test run_phase started", UVM_LOW)
     
+    // Configure scoreboard for soft reset test
+    configure_scoreboard_for_test();
+    
     // Test 1: Soft reset during normal operation
     `uvm_info(get_type_name(), "Test 1: Soft reset during normal operation", UVM_LOW)
     fork
@@ -57,6 +60,9 @@ class soft_reset_test extends base_test;
       wseq.start(m_env.m_write_agent.m_sequencer);
       rseq.start(m_env.m_read_agent.m_sequencer);
     join
+    
+    // Get and report data integrity statistics
+    report_data_integrity_stats();
     
     phase.drop_objection(this);
   endtask

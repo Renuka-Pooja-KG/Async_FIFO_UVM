@@ -27,6 +27,9 @@ class read_enable_coverage_test extends base_test;
     phase.raise_objection(this);
     `uvm_info(get_type_name(), "Read enable coverage test run_phase started", UVM_LOW)
     
+    // Configure scoreboard for test
+    configure_scoreboard_for_test();
+    
     // Test 1: Normal read operations (read_enable = 1)
     `uvm_info(get_type_name(), "Test 1: Normal read operations (read_enable = 1)", UVM_LOW)
     fork
@@ -65,6 +68,9 @@ class read_enable_coverage_test extends base_test;
       wseq.start(m_env.m_write_agent.m_sequencer);
       rseq.start(m_env.m_read_agent.m_sequencer);
     join
+    
+    // Get and report data integrity statistics
+    report_data_integrity_stats();
     
     phase.drop_objection(this);
   endtask
